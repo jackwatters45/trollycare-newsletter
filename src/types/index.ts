@@ -1,15 +1,23 @@
-export interface ArticleDisplayData {
-	title: string;
-	link: string;
-	description: string;
+export interface Newsletter {
+	id: string;
+	categories: Category[];
+	summary: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export interface Category {
+	id: string;
 	name: string;
-	articles: ArticleDisplayData[];
+	articles: Article[];
 }
 
-export interface NewsletterData {
-	categories: Category[] | undefined;
-	summary: string;
+export interface Article {
+	id: string;
+	title: string;
+	link: string;
+	description: string;
+	categoryId: string;
+	createdAt: string;
+	updatedAt: string;
 }
