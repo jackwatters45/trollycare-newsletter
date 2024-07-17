@@ -27,7 +27,7 @@ export default function ErrorComponent({ error }: ErrorProps) {
 	}
 
 	return (
-		<div className="flex items-center justify-center h-screen">
+		<div className="flex items-center justify-center py-16">
 			<Alert variant="destructive" className="max-w-md">
 				<AlertCircle className="h-4 w-4" />
 				<AlertTitle>

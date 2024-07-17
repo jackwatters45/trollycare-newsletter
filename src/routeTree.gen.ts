@@ -13,7 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as NewsletterNewsletterIdImport } from './routes/newsletter/$newsletterId'
+import { Route as NewslettersNewsletterIdImport } from './routes/newsletters/$newsletterId'
 
 // Create Virtual Routes
 
@@ -26,8 +26,8 @@ const IndexLazyRoute = IndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
-const NewsletterNewsletterIdRoute = NewsletterNewsletterIdImport.update({
-  path: '/newsletter/$newsletterId',
+const NewslettersNewsletterIdRoute = NewslettersNewsletterIdImport.update({
+  path: '/newsletters/$newsletterId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -42,11 +42,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/newsletter/$newsletterId': {
-      id: '/newsletter/$newsletterId'
-      path: '/newsletter/$newsletterId'
-      fullPath: '/newsletter/$newsletterId'
-      preLoaderRoute: typeof NewsletterNewsletterIdImport
+    '/newsletters/$newsletterId': {
+      id: '/newsletters/$newsletterId'
+      path: '/newsletters/$newsletterId'
+      fullPath: '/newsletters/$newsletterId'
+      preLoaderRoute: typeof NewslettersNewsletterIdImport
       parentRoute: typeof rootRoute
     }
   }
@@ -56,7 +56,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
-  NewsletterNewsletterIdRoute,
+  NewslettersNewsletterIdRoute,
 })
 
 /* prettier-ignore-end */
@@ -68,14 +68,14 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/newsletter/$newsletterId"
+        "/newsletters/$newsletterId"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
     },
-    "/newsletter/$newsletterId": {
-      "filePath": "newsletter/$newsletterId.tsx"
+    "/newsletters/$newsletterId": {
+      "filePath": "newsletters/$newsletterId.tsx"
     }
   }
 }

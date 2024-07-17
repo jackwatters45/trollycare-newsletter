@@ -12,9 +12,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import EditNewsletter from "@/components/newsletter/edit-newsletter";
 import { NewsletterPreview } from "@/components/newsletter/preview";
+import { withProtectedRoute } from "@/components/protected";
 
-export const Route = createFileRoute("/newsletter/$newsletterId")({
-	component: () => <App />,
+const ProtectedNewsletter = withProtectedRoute(App);
+export const Route = createFileRoute("/newsletters/$newsletterId")({
+	component: ProtectedNewsletter,
 });
 
 export default function App() {
@@ -37,11 +39,15 @@ export default function App() {
 				</CardHeader>
 				<CardContent>
 					<ol className="list-decimal list-inside space-y-2">
-						<li>Review Summary. Click the edit summary button to make changes.</li>
-						<li>Click the delete icon to remove the article from the newsletter.</li>
 						<li>
-							Confirm the contents of the newsletter by clicking the confirmation
-							button at the bottom of the page.
+							Review Summary. Click the edit summary button to make changes.
+						</li>
+						<li>
+							Click the delete icon to remove the article from the newsletter.
+						</li>
+						<li>
+							Confirm the contents of the newsletter by clicking the
+							confirmation button at the bottom of the page.
 						</li>
 					</ol>
 				</CardContent>

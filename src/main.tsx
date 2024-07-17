@@ -1,6 +1,8 @@
 // main.tsx
 import "./globals.css";
+
 import React from "react";
+import { KindeProvider } from "@kinde-oss/kinde-auth-react";
 import {
 	ErrorComponent,
 	RouterProvider,
@@ -12,10 +14,10 @@ import ReactDOM from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 import Loading from "./components/loading.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-// import { AuthProvider, useAuth } from "./components/auth-provider";
+
 import { ThemeProvider } from "./components/theme-provider.tsx";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 // Create a new router instance
 const router = createRouter({
@@ -39,21 +41,29 @@ declare module "@tanstack/react-router" {
 }
 
 function InnerApp() {
-	// const auth = useAuth();
-	const auth = {};
-	return <RouterProvider router={router} context={{ auth }} />;
+	return <RouterProvider router={router} />;
 }
 
-// TODO: auth
 function App() {
+	console.log({
+		clientId: import.meta.env.VITE_KINDE_CLIENT_ID,
+		domain: import.meta.env.VITE_KINDE_DOMAIN,
+		redirectUri: import.meta.env.VITE_REDIRECT_URI,
+		logoutUri: import.meta.env.VITE_LOGOUT_URI,
+	});
 	return (
-		// <AuthProvider>
-		<QueryClientProvider client={queryClient}>
-			<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-				<InnerApp />
-			</ThemeProvider>
-		</QueryClientProvider>
-		// </AuthProvider>
+		<KindeProvider
+			clientId={import.meta.env.VITE_KINDE_CLIENT_ID}
+			domain={import.meta.env.VITE_KINDE_DOMAIN}
+			redirectUri={import.meta.env.VITE_REDIRECT_URI}
+			logoutUri={import.meta.env.VITE_LOGOUT_URI}
+		>
+			<QueryClientProvider client={queryClient}>
+				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+					<InnerApp />
+				</ThemeProvider>
+			</QueryClientProvider>
+		</KindeProvider>
 	);
 }
 
