@@ -1,7 +1,9 @@
 export interface Newsletter {
 	id: string;
+	status: "SENT" | "DRAFT" | "FAILED" | null;
 	categories: Category[];
 	summary: string;
+	sendAt: string;
 	createdAt: string;
 	updatedAt: string;
 }

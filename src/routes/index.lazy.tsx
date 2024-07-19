@@ -25,11 +25,9 @@ import type { Recipient } from "@/types";
 import { withProtectedRoute } from "@/components/protected";
 import { useAuthenticatedFetch } from "@/lib/auth";
 
-// TODO: handle protected without redirect instead of error
 const ProtectedIndex = withProtectedRoute(Index);
 export const Route = createLazyFileRoute("/")({
-	// component: ProtectedIndex,
-	component: Index,
+	component: ProtectedIndex,
 });
 
 const formSchema = z.object({
@@ -76,11 +74,11 @@ function RecipientsForm(props: { data: string[] }) {
 
 	return (
 		<Form {...form}>
-			<form className="space-y-6">
+			<form className="space-y-6 container mx-auto">
 				<h2 className="text-2xl font-bold">Newsletter Recipients</h2>
 				<FormDescription>
-					Add email addresses to send your newsletter to. You can add multiple email
-					addresses by separating them with a comma.
+					Add email addresses to send your newsletter to. You can add multiple
+					email addresses by separating them with a comma.
 				</FormDescription>
 				<NewRecipientInput form={form} />
 				<RecipientsInput form={form} />
@@ -112,7 +110,8 @@ function RecipientsInput(props: {
 
 	const { mutate: removeMutate } = useMutation<string[], APIError, string>({
 		mutationFn: (email: string) => removeRecipient(email),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipients"] }),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: ["recipients"] }),
 		onError: (error) => {
 			console.log(error);
 			toast.error("Failed to remove email. Please try again.");
@@ -137,7 +136,7 @@ function RecipientsInput(props: {
 					<FormItem>
 						<FormLabel className="sr-only">Newsletter Recipients</FormLabel>
 						<FormControl>
-							<div className="flex items-center gap-1">
+							<div className="flex items-center flex-wrap gap-1">
 								{field.value.map((email) => (
 									<Badge key={email} className="hover:bg-primary">
 										{email}
@@ -188,7 +187,8 @@ function NewRecipientInput(props: {
 
 	const { mutate: addMutate } = useMutation<string[], APIError, string[]>({
 		mutationFn: (emails: string[]) => addRecipients(emails),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipients"] }),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: ["recipients"] }),
 		onError: (error) => {
 			console.log(error);
 			toast.error("Failed to add email. Please try again.");
@@ -215,7 +215,10 @@ function NewRecipientInput(props: {
 
 		addMutate(validNewEmails);
 
-		props.form.setValue("recipients", [...existingRecipients, ...validNewEmails]);
+		props.form.setValue("recipients", [
+			...existingRecipients,
+			...validNewEmails,
+		]);
 		props.form.setValue("new-recipient", "");
 	};
 

@@ -11,8 +11,8 @@
 		"ignore": [
 			"tests/**/*",
 			"dist/**/*",
-			"node_modules",
-			"*/routeTree.gen.ts"
+			"node_modules/**/*",
+			"**/*.gen.ts"
 		]
 	},
 	"vcs": {

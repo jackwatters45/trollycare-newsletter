@@ -1,52 +1,30 @@
+// __root.tsx
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
+import Nav from "@/components/nav";
+import Footer from "@/components/footer";
 
 export const Route = createRootRoute({
-	component: () => (
+	component: RootComponent,
+});
+
+function RootComponent() {
+	return (
 		<>
 			<div className="w-full h-full">
-				<div className="container py-16 space-y-8 max-w-md mx-auto">
+				<div className="container py-16 space-y-8 max-w-screen-lg mx-auto">
 					<Nav />
-					<main>
+					<main className="flex-1">
 						<Outlet />
 					</main>
 				</div>
+				<Footer />
 			</div>
 			<Toaster />
 			<TanStackRouterDevtools initialIsOpen={false} />
 			<ReactQueryDevtools initialIsOpen={false} />
 		</>
-	),
-});
-
-function Nav() {
-	const auth = useKindeAuth();
-
-	return (
-		<nav className="flex items-center justify-between">
-			<h1 className="text-2xl font-bold">TrollyCare Newsletter</h1>
-			{auth.isAuthenticated ? (
-				<button onClick={auth.logout} type="button">
-					Sign out
-				</button>
-			) : (
-				<button
-					onClick={() =>
-						auth.login({
-							authUrlParams: {
-								login_hint: "jenny@example.com",
-								lang: "ru",
-							},
-						})
-					}
-					type="button"
-				>
-					Sign In
-				</button>
-			)}
-		</nav>
 	);
 }

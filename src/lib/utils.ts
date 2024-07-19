@@ -37,3 +37,9 @@ export function getPastWeekDate(endDate: Date | string): {
 		year: today.getFullYear(),
 	};
 }
+
+export function truncateText(value: string, truncLength = 20) {
+	return value.length > truncLength
+		? `${value.slice(0, truncLength)}...`
+		: value;
+}

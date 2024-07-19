@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createLazyFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import type { Newsletter } from "@/types";
@@ -15,11 +15,11 @@ import { NewsletterPreview } from "@/components/newsletter/preview";
 import { withProtectedRoute } from "@/components/protected";
 
 const ProtectedNewsletter = withProtectedRoute(App);
-export const Route = createFileRoute("/newsletters/$newsletterId")({
+export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
 	component: ProtectedNewsletter,
 });
 
-export default function App() {
+function App() {
 	const { newsletterId } = Route.useParams();
 
 	const { data, error, isLoading } = useQuery<Newsletter, APIError>({
@@ -39,15 +39,11 @@ export default function App() {
 				</CardHeader>
 				<CardContent>
 					<ol className="list-decimal list-inside space-y-2">
+						<li>Review Summary. Click the edit summary button to make changes.</li>
+						<li>Click the delete icon to remove the article from the newsletter.</li>
 						<li>
-							Review Summary. Click the edit summary button to make changes.
-						</li>
-						<li>
-							Click the delete icon to remove the article from the newsletter.
-						</li>
-						<li>
-							Confirm the contents of the newsletter by clicking the
-							confirmation button at the bottom of the page.
+							Confirm the contents of the newsletter by clicking the confirmation
+							button at the bottom of the page.
 						</li>
 					</ol>
 				</CardContent>

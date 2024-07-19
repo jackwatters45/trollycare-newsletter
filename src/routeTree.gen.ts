@@ -13,23 +13,34 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as NewslettersNewsletterIdImport } from './routes/newsletters/$newsletterId'
 
 // Create Virtual Routes
 
+const HistoryLazyImport = createFileRoute('/history')()
 const IndexLazyImport = createFileRoute('/')()
+const NewslettersNewsletterIdLazyImport = createFileRoute(
+  '/newsletters/$newsletterId',
+)()
 
 // Create/Update Routes
+
+const HistoryLazyRoute = HistoryLazyImport.update({
+  path: '/history',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/history.lazy').then((d) => d.Route))
 
 const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
-const NewslettersNewsletterIdRoute = NewslettersNewsletterIdImport.update({
-  path: '/newsletters/$newsletterId',
-  getParentRoute: () => rootRoute,
-} as any)
+const NewslettersNewsletterIdLazyRoute =
+  NewslettersNewsletterIdLazyImport.update({
+    path: '/newsletters/$newsletterId',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/newsletters/$newsletterId.lazy').then((d) => d.Route),
+  )
 
 // Populate the FileRoutesByPath interface
 
@@ -42,11 +53,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/newsletters/$newsletterId': {
       id: '/newsletters/$newsletterId'
       path: '/newsletters/$newsletterId'
       fullPath: '/newsletters/$newsletterId'
-      preLoaderRoute: typeof NewslettersNewsletterIdImport
+      preLoaderRoute: typeof NewslettersNewsletterIdLazyImport
       parentRoute: typeof rootRoute
     }
   }
@@ -56,7 +74,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
-  NewslettersNewsletterIdRoute,
+  HistoryLazyRoute,
+  NewslettersNewsletterIdLazyRoute,
 })
 
 /* prettier-ignore-end */
@@ -68,14 +87,18 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/history",
         "/newsletters/$newsletterId"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
     },
+    "/history": {
+      "filePath": "history.lazy.tsx"
+    },
     "/newsletters/$newsletterId": {
-      "filePath": "newsletters/$newsletterId.tsx"
+      "filePath": "newsletters/$newsletterId.lazy.tsx"
     }
   }
 }
