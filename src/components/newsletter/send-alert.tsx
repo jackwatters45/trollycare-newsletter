@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import type { APIError } from "@/lib/error";
@@ -21,18 +21,22 @@ import { sendNewsletter } from "./actions";
 export default function ConfirmSendAlert({
 	newsletterId,
 }: { newsletterId: string }) {
+	const queryClient = useQueryClient();
+
 	const { mutate } = useMutation<Newsletter, APIError>({
 		mutationFn: () => sendNewsletter(newsletterId),
 		onError: (error) => {
 			console.log(error);
 			toast.error("Failed to send newsletter. Please try again.");
 		},
+		onSuccess: () => {
+			toast.success("Newsletter sent successfully");
+			queryClient.invalidateQueries({ queryKey: ["newsletters"] });
+			queryClient.invalidateQueries({ queryKey: ["article", newsletterId] });
+		},
 	});
 
-	const onConfirm = () => {
-		mutate();
-		// TODO: redirect to sent newsletter page
-	};
+	const onConfirm = () => mutate();
 
 	return (
 		<AlertDialog>
@@ -45,8 +49,8 @@ export default function ConfirmSendAlert({
 						Are you sure the newsletter is ready to be sent?
 					</AlertDialogTitle>
 					<AlertDialogDescription>
-						This will send the newsletter to your clients. Please verify that all
-						articles are up to standard.
+						This will send the newsletter to your clients. Please verify that
+						all articles are up to standard.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

@@ -1,18 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Summary from "./summary";
 import ArticleComponent from "./article";
-import ConfirmSendAlert from "./send";
+import ConfirmSendAlert from "./send-alert";
 import type { Newsletter } from "@/types";
 
-export default function EditNewsletter(props: {
-	newsletterId: string;
-	data: Newsletter;
-}) {
+export default function EditNewsletter(
+	props: Newsletter & { newsletterId: string },
+) {
 	return (
 		<>
-			<Summary initial={props.data?.summary} newsletterId={props.newsletterId} />
+			<Summary initial={props.summary} newsletterId={props.newsletterId} />
 			<ul className="space-y-8">
-				{props.data?.categories?.map((category) => (
+				{props?.categories?.map((category) => (
 					<Card key={category.name}>
 						<li key={category.name}>
 							<CardHeader>
@@ -33,9 +32,11 @@ export default function EditNewsletter(props: {
 					</Card>
 				))}
 			</ul>
-			<div className="w-full flex justify-end">
-				<ConfirmSendAlert newsletterId={props.newsletterId} />
-			</div>
+			{props.status === "DRAFT" && (
+				<div className="w-full flex justify-end">
+					<ConfirmSendAlert newsletterId={props.newsletterId} />
+				</div>
+			)}
 		</>
 	);
 }
