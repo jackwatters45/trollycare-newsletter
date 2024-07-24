@@ -148,6 +148,8 @@ async function addRecipients(emails: string[]) {
 	return results;
 }
 
+const emailSchema = z.string().email("Invalid email address");
+
 function NewRecipientInput(props: {
 	newsletterId?: string;
 	form: UseFormReturn<z.infer<typeof formSchema>>;
@@ -173,9 +175,14 @@ function NewRecipientInput(props: {
 		}
 
 		const newEmails = newRecipientInput.split(",").map((email) => email.trim());
-		const validNewEmails = newEmails.filter(
-			(email) => email && !existingRecipients.includes(email),
-		);
+		const validNewEmails = newEmails.filter((email) => {
+			const validationResult = emailSchema.safeParse(email);
+			if (!validationResult.success) {
+				toast.error(`Invalid email: ${email}`);
+				return false;
+			}
+			return !existingRecipients.includes(email);
+		});
 
 		if (validNewEmails.length === 0) {
 			return false;
