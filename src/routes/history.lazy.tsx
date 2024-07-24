@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
 
 const ProtectedHistory = withProtectedRoute(History);
 export const Route = createLazyFileRoute("/history")({
@@ -107,7 +108,10 @@ const columns: ColumnDef<Newsletter>[] = [
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(newsletter.id)}
+							onClick={() => {
+								navigator.clipboard.writeText(newsletter.id);
+								toast.success(`Newsletter ID ${newsletter.id} copied to clipboard`);
+							}}
 						>
 							Copy newsletter ID
 						</DropdownMenuItem>
