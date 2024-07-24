@@ -2,6 +2,7 @@
 import "./globals.css";
 
 import React from "react";
+import * as Sentry from "@sentry/react";
 import { KindeProvider } from "@kinde-oss/kinde-auth-react";
 import {
 	ErrorComponent,
@@ -37,17 +38,23 @@ declare module "@tanstack/react-router" {
 	}
 }
 
+Sentry.init({
+	dsn: "https://25881c8f3a123d600fb218dfe9063b1e@o4507179419238400.ingest.us.sentry.io/4507653649727488",
+	integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+	// Performance Monitoring
+	tracesSampleRate: 1.0, //  Capture 100% of the transactions
+	// Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+	tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
+	// Session Replay
+	replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+	replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+});
+
 function InnerApp() {
 	return <RouterProvider router={router} />;
 }
 
 function App() {
-	console.log({
-		clientId: import.meta.env.VITE_KINDE_CLIENT_ID,
-		domain: import.meta.env.VITE_KINDE_DOMAIN,
-		redirectUri: import.meta.env.VITE_REDIRECT_URI,
-		logoutUri: import.meta.env.VITE_LOGOUT_URI,
-	});
 	return (
 		<KindeProvider
 			clientId={import.meta.env.VITE_KINDE_CLIENT_ID}
