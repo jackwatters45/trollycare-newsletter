@@ -69,11 +69,7 @@
   }
 
   a {
-    @apply text-muted-foreground;
-  }
-
-  a:hover {
-    @apply underline;
+    @apply text-foreground;
   }
 
   h1 {
