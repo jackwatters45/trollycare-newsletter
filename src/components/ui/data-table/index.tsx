@@ -8,7 +8,7 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
+
 import React from "react";
 
 import type {
@@ -59,17 +59,6 @@ export function DataTable<TData extends { id: string }, TValue>({
 		},
 	});
 
-	const { rows } = table.getRowModel();
-
-	const parentRef = React.useRef<HTMLDivElement>(null);
-
-	const virtualizer = useVirtualizer({
-		count: rows.length,
-		getScrollElement: () => parentRef.current,
-		estimateSize: () => 34,
-		overscan: 20,
-	});
-
 	return (
 		<div>
 			<DataTableFilter table={table} />
@@ -85,10 +74,7 @@ export function DataTable<TData extends { id: string }, TValue>({
 									>
 										{header.isPlaceholder
 											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
-												)}
+											: flexRender(header.column.columnDef.header, header.getContext())}
 									</TableHead>
 								);
 							})}
@@ -104,10 +90,7 @@ export function DataTable<TData extends { id: string }, TValue>({
 								className="group"
 							>
 								{row.getVisibleCells().map((cell, i) => (
-									<TableCell
-										key={cell.id}
-										className={cn("", i === 0 ? "pl-8" : "pl-0")}
-									>
+									<TableCell key={cell.id} className={cn("", i === 0 ? "pl-8" : "pl-0")}>
 										{flexRender(cell.column.columnDef.cell, cell.getContext())}
 									</TableCell>
 								))}
