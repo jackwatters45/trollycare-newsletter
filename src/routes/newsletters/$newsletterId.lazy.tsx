@@ -1,7 +1,7 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { Newsletter } from "@/types";
+import type { NewsletterWithRecipients } from "@/types";
 import type { APIError } from "@/lib/error";
 import { getData, sendNewsletter } from "@/components/newsletter/actions";
 
@@ -15,6 +15,9 @@ import { NewsletterPreview } from "@/components/newsletter/preview";
 import { withProtectedRoute } from "@/components/protected";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import RecipientsForm from "@/components/newsletter/recipients-form";
+import RecipientsDisplay from "@/components/newsletter/recipients-display";
+import { useMemo } from "react";
 
 const ProtectedNewsletter = withProtectedRoute(App);
 export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
@@ -24,7 +27,10 @@ export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
 function App() {
 	const { newsletterId } = Route.useParams();
 
-	const { data, error, isLoading } = useQuery<Newsletter, APIError>({
+	const { data, error, isLoading } = useQuery<
+		NewsletterWithRecipients,
+		APIError
+	>({
 		queryKey: ["article", newsletterId],
 		queryFn: () => getData(newsletterId),
 	});
@@ -45,7 +51,14 @@ function App() {
 	}
 }
 
-function DraftNewsletter(props: Newsletter & { newsletterId: string }) {
+function DraftNewsletter(
+	props: NewsletterWithRecipients & { newsletterId: string },
+) {
+	const recipientEmails = useMemo(
+		() => props.recipients.map((r) => r.email),
+		[props.recipients],
+	);
+
 	return (
 		<div className="space-y-8">
 			<Card>
@@ -54,15 +67,11 @@ function DraftNewsletter(props: Newsletter & { newsletterId: string }) {
 				</CardHeader>
 				<CardContent>
 					<ol className="list-decimal list-inside space-y-2">
+						<li>Review Summary. Click the edit summary button to make changes.</li>
+						<li>Click the delete icon to remove the article from the newsletter.</li>
 						<li>
-							Review Summary. Click the edit summary button to make changes.
-						</li>
-						<li>
-							Click the delete icon to remove the article from the newsletter.
-						</li>
-						<li>
-							Confirm the contents of the newsletter by clicking the
-							confirmation button at the bottom of the page.
+							Confirm the contents of the newsletter by clicking the confirmation
+							button at the bottom of the page.
 						</li>
 					</ol>
 				</CardContent>
@@ -72,6 +81,7 @@ function DraftNewsletter(props: Newsletter & { newsletterId: string }) {
 				<TabsList>
 					<TabsTrigger value="edit">Edit</TabsTrigger>
 					<TabsTrigger value="preview">Preview</TabsTrigger>
+					<TabsTrigger value="recipients">Recipients</TabsTrigger>
 				</TabsList>
 				<TabsContent value="edit" className="space-y-8">
 					<EditNewsletter {...props} />
@@ -85,16 +95,26 @@ function DraftNewsletter(props: Newsletter & { newsletterId: string }) {
 						/>
 					</div>
 				</TabsContent>
+				<TabsContent value="recipients" className="space-y-8">
+					<div className="py-4 mt-4 border border-slate-300 rounded-lg shadow-md">
+						<RecipientsForm
+							recipientEmails={recipientEmails}
+							newsletterId={props.newsletterId}
+						/>
+					</div>
+				</TabsContent>
 			</Tabs>
 		</div>
 	);
 }
 
-function FailedNewsletter(props: Newsletter & { newsletterId: string }) {
+function FailedNewsletter(
+	props: NewsletterWithRecipients & { newsletterId: string },
+) {
 	const queryClient = useQueryClient();
 
 	const { mutate, isPending, isError, error } = useMutation<
-		Newsletter,
+		NewsletterWithRecipients,
 		APIError
 	>({
 		mutationFn: () => sendNewsletter(props.newsletterId),
@@ -120,9 +140,9 @@ function FailedNewsletter(props: Newsletter & { newsletterId: string }) {
 			</CardHeader>
 			<CardContent>
 				<p className="mb-4">
-					Unfortunately, there was an issue sending this newsletter. The
-					newsletter has been generated successfully, but we couldn't deliver
-					it. You can try to send it again using the button below.
+					Unfortunately, there was an issue sending this newsletter. The newsletter
+					has been generated successfully, but we couldn't deliver it. You can try to
+					send it again using the button below.
 				</p>
 				{isError && (
 					<p className="text-red-500 mb-4">
@@ -141,37 +161,55 @@ function FailedNewsletter(props: Newsletter & { newsletterId: string }) {
 	);
 }
 
-function SentNewsletter(props: Newsletter) {
+function SentNewsletter(props: NewsletterWithRecipients) {
+	const recipientEmails = useMemo(
+		() => props.recipients.map((r) => r.email),
+		[props.recipients],
+	);
+
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Newsletter {props.id}</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				<div className="space-y-2">
-					<p>
-						<strong>Status:</strong> {props.status}
-					</p>
-					<p>
-						<strong>Sent Date:</strong>{" "}
-						{new Date(props.sendAt).toLocaleString()}
-					</p>
-					<p>
-						<strong>Created Date:</strong>{" "}
-						{new Date(props.createdAt).toLocaleString()}
-					</p>
-				</div>
-				<div className="pt-4">
-					<h3 className="text-lg font-semibold mb-2">Newsletter Preview</h3>
+		<div className="space-y-8">
+			<Card>
+				<CardHeader>
+					<CardTitle>Newsletter {props.id}</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<div className="space-y-2">
+						<p>
+							<strong>Status:</strong> {props.status}
+						</p>
+						<p>
+							<strong>Sent Date:</strong> {new Date(props.sendAt).toLocaleString()}
+						</p>
+						<p>
+							<strong>Created Date:</strong>{" "}
+							{new Date(props.createdAt).toLocaleString()}
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+			<Separator />
+			<Tabs defaultValue="edit" className="space-y-4">
+				<TabsList>
+					<TabsTrigger value="preview">Preview</TabsTrigger>
+					<TabsTrigger value="recipients">Recipients</TabsTrigger>
+				</TabsList>
+				<TabsContent value="preview" className="space-y-8">
 					<div className="py-4 mt-4 border border-slate-300 rounded-lg shadow-md">
 						<NewsletterPreview
-							sendDate={props.sendAt}
-							summary={props.summary}
-							categories={props.categories}
+							sendDate={props.createdAt}
+							summary={props?.summary}
+							categories={props?.categories}
 						/>
 					</div>
-				</div>
-			</CardContent>
-		</Card>
+				</TabsContent>
+				<TabsContent value="recipients" className="space-y-8">
+					<div className="p-4 mt-4 border border-slate-300 rounded-lg shadow-md space-y-4">
+						<h3>Recipients</h3>
+						<RecipientsDisplay recipientEmails={recipientEmails} />
+					</div>
+				</TabsContent>
+			</Tabs>
+		</div>
 	);
 }

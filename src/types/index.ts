@@ -8,6 +8,10 @@ export interface Newsletter {
 	updatedAt: string;
 }
 
+export interface NewsletterWithRecipients extends Newsletter {
+	recipients: Recipient[];
+}
+
 export interface Category {
 	id: string;
 	name: string;
