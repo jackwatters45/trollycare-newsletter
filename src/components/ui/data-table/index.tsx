@@ -26,7 +26,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { DataTablePagination } from "./pagination";
-import DataTableFilter from "./filter";
+import DataTableFilter, { globalFilterFn } from "./filter";
 import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData extends { id: string }, TValue> {
@@ -53,6 +53,7 @@ export function DataTable<TData extends { id: string }, TValue>({
 		onColumnFiltersChange: setColumnFilters,
 		getFilteredRowModel: getFilteredRowModel(),
 		getRowId: (row) => row.id,
+		globalFilterFn,
 		state: {
 			sorting,
 			columnFilters,

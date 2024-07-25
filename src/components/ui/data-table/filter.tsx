@@ -5,20 +5,30 @@ interface DataTableFilterProps<TData> {
 	table: Table<TData>;
 }
 
-// TODO: seach all fields (even hidden) + non searchable fields
 export default function DataTableFilter<TData>({
 	table,
 }: DataTableFilterProps<TData>) {
 	return (
 		<Input
-			placeholder="Search..."
+			placeholder="Search all fields..."
 			className="my-4 px-2"
 			id="search"
 			name="search"
-			value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
-			onChange={(event) =>
-				table.getColumn("name")?.setFilterValue(event.target.value)
-			}
+			value={table.getState().globalFilter ?? ""}
+			onChange={(event) => table.setGlobalFilter(event.target.value)}
 		/>
+	);
+}
+
+// This function should be defined outside of the component and passed to the table instance
+export function globalFilterFn(
+	// biome-ignore lint/suspicious/noExplicitAny: <blah blah>
+	row: any,
+	_columnId: string,
+	filterValue: string,
+): boolean {
+	const search = filterValue.toLowerCase();
+	return Object.values(row.original).some((value) =>
+		String(value).toLowerCase().includes(search),
 	);
 }
