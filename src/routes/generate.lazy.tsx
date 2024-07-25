@@ -1,7 +1,7 @@
 import { useAuthenticatedFetch } from "@/lib/auth";
 import { APIError } from "@/lib/error";
 import { useMutation } from "@tanstack/react-query";
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import type { Newsletter } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -42,23 +42,20 @@ function GenerateNew() {
 
 	return (
 		<div className="max-w-3xl mx-auto p-5 ">
-			<h1 className="text-3xl font-bold text-center mb-6">
-				Newsletter Generator
-			</h1>
+			<h1 className="text-3xl font-bold text-center mb-6">Newsletter Generator</h1>
 			<div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded">
 				<p className="font-bold">Manual Newsletter Generation</p>
 				<p className="mt-2">
-					This page allows you to create a new newsletter manually. While we
-					have an automatic system that generates newsletters regularly,
-					sometimes things don't go as planned. If the automatic process hasn't
-					worked for any reason, you can use this page to create a new
-					newsletter yourself.
+					This page allows you to create a new newsletter manually. While we have an
+					automatic system that generates newsletters regularly, sometimes things
+					don't go as planned. If the automatic process hasn't worked for any reason,
+					you can use this page to create a new newsletter yourself.
 				</p>
 				<p className="mt-2">
-					Simply click the "Generate New Data" button below, and we'll gather
-					all the latest information to create a fresh newsletter for you. It
-					might take a few minutes, but once it's done, you'll be able to review
-					and send out the newsletter as usual.
+					Simply click the "Generate New Data" button below, and we'll gather all the
+					latest information to create a fresh newsletter for you. It might take a
+					few minutes, but once it's done, you'll be able to review and send out the
+					newsletter as usual.
 				</p>
 			</div>
 			<Button
@@ -78,12 +75,12 @@ function GenerateNew() {
 					<AlertTitle>Success</AlertTitle>
 					<AlertDescription>
 						Data generated successfully.{" "}
-						<a
+						<Link
 							href={`/newsletters/${mutation.data.id}`}
 							className="text-blue-500 hover:underline"
 						>
 							View Newsletter
-						</a>
+						</Link>
 					</AlertDescription>
 				</Alert>
 			)}

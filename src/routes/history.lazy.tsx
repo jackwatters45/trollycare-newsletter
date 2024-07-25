@@ -1,6 +1,17 @@
 import ErrorComponent from "@/components/error";
 import Loading from "@/components/loading";
 import { withProtectedRoute } from "@/components/protected";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/column-header";
@@ -15,7 +26,7 @@ import { HoverableCell } from "@/components/ui/hover-card";
 import { useAuthenticatedFetch } from "@/lib/auth";
 import { APIError } from "@/lib/error";
 import type { Newsletter } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
@@ -124,9 +135,67 @@ const columns: ColumnDef<Newsletter>[] = [
 								View Newsletter
 							</Link>
 						</DropdownMenuItem>
+						<DeleteNewsletter newsletterId={newsletter.id} />
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);
 		},
 	},
 ];
+
+function DeleteNewsletter(props: { newsletterId: string }) {
+	const queryClient = useQueryClient();
+
+	const authenticatedFetch = useAuthenticatedFetch();
+	const { mutate: deleteMutate } = useMutation<void, APIError, void>({
+		mutationFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_BASE_URL}/api/newsletters/${props.newsletterId}`,
+				{
+					method: "DELETE",
+				},
+			);
+
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
+		onSuccess: () => {
+			toast.success("Newsletter deleted");
+			queryClient.invalidateQueries({
+				queryKey: ["newsletters"],
+			});
+		},
+		onError: (error) => {
+			console.log(error);
+			toast.error("Failed to delete newsletter. Please try again.");
+		},
+	});
+
+	const onConfirm = () => deleteMutate();
+
+	return (
+		<AlertDialog>
+			<AlertDialogTrigger className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent w-full">
+				Delete Newsletter
+			</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>
+						Are you sure you want to remove this newsletter?
+					</AlertDialogTitle>
+					<AlertDialogDescription>
+						The newsletter data will be permanently deleted and cannot be recovered.
+						All data about the history of the newsletter will be deleted as well.
+					</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogAction onClick={onConfirm}>Confirm</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
+	);
+}

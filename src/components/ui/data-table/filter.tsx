@@ -12,7 +12,9 @@ export default function DataTableFilter<TData>({
 	return (
 		<Input
 			placeholder="Search..."
-			className="my-4 px-2 "
+			className="my-4 px-2"
+			id="search"
+			name="search"
 			value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
 			onChange={(event) =>
 				table.getColumn("name")?.setFilterValue(event.target.value)
