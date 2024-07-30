@@ -3,7 +3,6 @@ import "./globals.css";
 
 import React from "react";
 import * as Sentry from "@sentry/react";
-import { KindeProvider } from "@kinde-oss/kinde-auth-react";
 import {
 	ErrorComponent,
 	RouterProvider,
@@ -15,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import Loading from "./components/loading.tsx";
 import NotFoundPage from "./components/not-found.tsx";
+import { AuthProvider } from "./lib/auth.tsx";
 
 const queryClient = new QueryClient();
 
@@ -56,18 +56,13 @@ function InnerApp() {
 
 function App() {
 	return (
-		<KindeProvider
-			clientId={import.meta.env.VITE_KINDE_CLIENT_ID}
-			domain={import.meta.env.VITE_KINDE_DOMAIN}
-			redirectUri={import.meta.env.VITE_REDIRECT_URI}
-			logoutUri={import.meta.env.VITE_LOGOUT_URI}
-		>
+		<AuthProvider>
 			<QueryClientProvider client={queryClient}>
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 					<InnerApp />
 				</ThemeProvider>
 			</QueryClientProvider>
-		</KindeProvider>
+		</AuthProvider>
 	);
 }
 

@@ -59,7 +59,7 @@ export default function RecipientsForm(props: {
 async function removeRecipient(email: string) {
 	const escapedEmail = encodeURIComponent(email);
 	const res = await fetch(
-		`${import.meta.env.VITE_BASE_URL}/api/recipients/${escapedEmail}`,
+		`${import.meta.env.VITE_API_URL}/api/recipients/${escapedEmail}`,
 		{
 			method: "DELETE",
 		},
@@ -132,7 +132,7 @@ async function addRecipients(emails: string[]) {
 		emails.map(async (email) => {
 			const escapedEmail = encodeURIComponent(email.trim());
 			const res = await fetch(
-				`${import.meta.env.VITE_BASE_URL}/api/recipients/${escapedEmail}`,
+				`${import.meta.env.VITE_API_URL}/api/recipients/${escapedEmail}`,
 				{
 					method: "POST",
 				},

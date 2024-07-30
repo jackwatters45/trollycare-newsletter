@@ -69,7 +69,7 @@
   }
 
   a {
-    @apply text-foreground;
+    @apply text-inherit;
   }
 
   h1 {

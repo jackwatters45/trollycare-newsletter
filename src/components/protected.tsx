@@ -1,20 +1,20 @@
 import type React from "react";
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import Loading from "./loading";
+import { useAuth } from "@/lib/auth";
+import { Navigate } from "@tanstack/react-router";
 
 export function withProtectedRoute<P extends object>(
 	WrappedComponent: React.ComponentType<P>,
 ) {
 	return function ProtectedRoute(props: P) {
-		const auth = useKindeAuth();
+		const { session, loading } = useAuth();
 
-		if (auth.isLoading) {
+		if (loading) {
 			return <Loading />;
 		}
 
-		if (!auth.isAuthenticated) {
-			auth.login();
-			return null;
+		if (!session) {
+			return <Navigate to="/login" />;
 		}
 
 		return <WrappedComponent {...props} />;

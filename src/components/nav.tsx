@@ -1,9 +1,9 @@
 import { useState, useCallback, memo } from "react";
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth";
 
 const NavItems = memo(
 	({ logout, closeSheet }: { logout: () => void; closeSheet: () => void }) => (
@@ -55,16 +55,10 @@ const NavItems = memo(
 NavItems.displayName = "NavItems";
 
 export default function Nav() {
-	const auth = useKindeAuth();
 	const [isOpen, setIsOpen] = useState(false);
+	const { session, logout } = useAuth();
 
-	const handleLogout = useCallback(() => {
-		auth.logout();
-	}, [auth]);
-
-	const handleLogin = useCallback(() => {
-		auth.login();
-	}, [auth]);
+	const handleLogout = () => logout();
 
 	const closeSheet = useCallback(() => {
 		setIsOpen(false);
@@ -78,12 +72,14 @@ export default function Nav() {
 
 			{/* Desktop Navigation */}
 			<div className="hidden sm:flex items-center space-x-2">
-				{auth.isAuthenticated ? (
+				{session ? (
 					<NavItems logout={handleLogout} closeSheet={closeSheet} />
 				) : (
-					<Button size="sm" variant="ghost" onClick={handleLogin} type="button">
-						Sign In
-					</Button>
+					<Link to="/login" className="text-foreground">
+						<Button size="sm" variant="ghost" type="button">
+							Sign In
+						</Button>
+					</Link>
 				)}
 			</div>
 
@@ -96,20 +92,20 @@ export default function Nav() {
 				</SheetTrigger>
 				<SheetContent>
 					<div className="flex flex-col space-y-2 mt-4">
-						{auth.isAuthenticated ? (
+						{session ? (
 							<NavItems logout={handleLogout} closeSheet={closeSheet} />
 						) : (
-							<Button
-								size="sm"
-								variant="ghost"
-								onClick={() => {
-									handleLogin();
-									closeSheet();
-								}}
-								type="button"
-							>
-								Sign In
-							</Button>
+							<Link to="/login">
+								<Button
+									size="sm"
+									variant="ghost"
+									onClick={() => closeSheet}
+									type="button"
+									// className="w-full justify-start"
+								>
+									Sign In
+								</Button>
+							</Link>
 						)}
 					</div>
 				</SheetContent>

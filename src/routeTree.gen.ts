@@ -16,6 +16,7 @@ import { Route as rootRoute } from './routes/__root'
 
 // Create Virtual Routes
 
+const LoginLazyImport = createFileRoute('/login')()
 const HistoryLazyImport = createFileRoute('/history')()
 const GenerateLazyImport = createFileRoute('/generate')()
 const IndexLazyImport = createFileRoute('/')()
@@ -24,6 +25,11 @@ const NewslettersNewsletterIdLazyImport = createFileRoute(
 )()
 
 // Create/Update Routes
+
+const LoginLazyRoute = LoginLazyImport.update({
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
 
 const HistoryLazyRoute = HistoryLazyImport.update({
   path: '/history',
@@ -73,6 +79,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistoryLazyImport
       parentRoute: typeof rootRoute
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/newsletters/$newsletterId': {
       id: '/newsletters/$newsletterId'
       path: '/newsletters/$newsletterId'
@@ -89,6 +102,7 @@ export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
   GenerateLazyRoute,
   HistoryLazyRoute,
+  LoginLazyRoute,
   NewslettersNewsletterIdLazyRoute,
 })
 
@@ -103,6 +117,7 @@ export const routeTree = rootRoute.addChildren({
         "/",
         "/generate",
         "/history",
+        "/login",
         "/newsletters/$newsletterId"
       ]
     },
@@ -114,6 +129,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/history": {
       "filePath": "history.lazy.tsx"
+    },
+    "/login": {
+      "filePath": "login.lazy.tsx"
     },
     "/newsletters/$newsletterId": {
       "filePath": "newsletters/$newsletterId.lazy.tsx"

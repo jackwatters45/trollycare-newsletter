@@ -1,5 +1,5 @@
 // __root.tsx
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -10,11 +10,14 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+	const router = useRouter();
+	const isLoginPage = router.state.location.pathname === "/login";
+
 	return (
 		<>
 			<div className="w-full h-full">
 				<div className="container py-16 space-y-8 max-w-screen-lg mx-auto">
-					<Nav />
+					{!isLoginPage ? <Nav /> : null}
 					<main className="flex-1">
 						<Outlet />
 					</main>

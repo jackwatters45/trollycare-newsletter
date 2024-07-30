@@ -18,7 +18,7 @@ function GenerateNew() {
 	const mutation = useMutation({
 		mutationFn: async () => {
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_BASE_URL}/api/newsletters/generate`,
+				`${import.meta.env.VITE_API_URL}/api/newsletters/generate`,
 				{
 					method: "POST",
 				},

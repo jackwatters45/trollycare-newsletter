@@ -44,7 +44,7 @@ function History() {
 		queryKey: ["newsletters"],
 		queryFn: async () => {
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_BASE_URL}/api/newsletters`,
+				`${import.meta.env.VITE_API_URL}/api/newsletters`,
 			);
 
 			if (!res.ok) {
@@ -150,7 +150,7 @@ function DeleteNewsletter(props: { newsletterId: string }) {
 	const { mutate: deleteMutate } = useMutation<void, APIError, void>({
 		mutationFn: async () => {
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_BASE_URL}/api/newsletters/${props.newsletterId}`,
+				`${import.meta.env.VITE_API_URL}/api/newsletters/${props.newsletterId}`,
 				{
 					method: "DELETE",
 				},

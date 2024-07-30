@@ -20,7 +20,7 @@ function Index() {
 		queryKey: ["recipients"],
 		queryFn: async () => {
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_BASE_URL}/api/recipients`,
+				`${import.meta.env.VITE_API_URL}/api/recipients`,
 			);
 
 			if (!res.ok) {

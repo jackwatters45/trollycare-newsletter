@@ -2,7 +2,7 @@ import { APIError } from "@/lib/error";
 
 export const getData = async (newsletterId: string) => {
 	const res = await fetch(
-		`${import.meta.env.VITE_BASE_URL}/api/newsletters/${newsletterId}`,
+		`${import.meta.env.VITE_API_URL}/api/newsletters/${newsletterId}`,
 	);
 
 	if (!res.ok) {
@@ -18,7 +18,7 @@ export const saveArticleDescription = async (
 	description: string,
 ) => {
 	const res = await fetch(
-		`${import.meta.env.VITE_BASE_URL}/api/articles/${articleId}/description`,
+		`${import.meta.env.VITE_API_URL}/api/articles/${articleId}/description`,
 		{
 			method: "PATCH",
 			headers: {
@@ -38,7 +38,7 @@ export const saveArticleDescription = async (
 
 export const removeArticle = async (articleId: string) => {
 	const res = await fetch(
-		`${import.meta.env.VITE_BASE_URL}/api/articles/${articleId}`,
+		`${import.meta.env.VITE_API_URL}/api/articles/${articleId}`,
 		{
 			method: "DELETE",
 		},
@@ -52,7 +52,7 @@ export const removeArticle = async (articleId: string) => {
 
 export const sendNewsletter = async (newsletterId: string) => {
 	const res = await fetch(
-		`${import.meta.env.VITE_BASE_URL}/api/newsletters/${newsletterId}/send`,
+		`${import.meta.env.VITE_API_URL}/api/newsletters/${newsletterId}/send`,
 		{
 			method: "POST",
 		},
@@ -66,7 +66,7 @@ export const sendNewsletter = async (newsletterId: string) => {
 
 export const updateSummary = async (newsletterId: string, summary: string) => {
 	const res = await fetch(
-		`${import.meta.env.VITE_BASE_URL}/api/newsletters/${newsletterId}/summary`,
+		`${import.meta.env.VITE_API_URL}/api/newsletters/${newsletterId}/summary`,
 		{
 			method: "PATCH",
 			headers: {
