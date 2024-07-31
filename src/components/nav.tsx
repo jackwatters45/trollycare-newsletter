@@ -12,7 +12,7 @@ const NavItems = memo(
 				<Button
 					variant="ghost"
 					type="button"
-					className="w-full justify-start"
+					className="w-full justify-start text-foreground"
 					onClick={closeSheet}
 				>
 					Home
@@ -22,7 +22,7 @@ const NavItems = memo(
 				<Button
 					variant="ghost"
 					type="button"
-					className="w-full justify-start"
+					className="w-full justify-start text-foreground"
 					onClick={closeSheet}
 				>
 					Generate
@@ -32,7 +32,7 @@ const NavItems = memo(
 				<Button
 					variant="ghost"
 					type="button"
-					className="w-full justify-start"
+					className="w-full justify-start text-foreground"
 					onClick={closeSheet}
 				>
 					History
