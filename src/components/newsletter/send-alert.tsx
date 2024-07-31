@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import type { APIError } from "@/lib/error";
+import { APIError } from "@/lib/error";
 import type { Newsletter } from "@/types";
 
 import {
@@ -16,15 +16,31 @@ import {
 	AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
-import { sendNewsletter } from "./actions";
+import { useAuthenticatedFetch } from "@/lib/auth";
 
 export default function ConfirmSendAlert({
 	newsletterId,
 }: { newsletterId: string }) {
 	const queryClient = useQueryClient();
 
+	const authenticatedFetch = useAuthenticatedFetch();
+
 	const { mutate } = useMutation<Newsletter, APIError>({
-		mutationFn: () => sendNewsletter(newsletterId),
+		mutationFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/newsletters/${newsletterId}/send`,
+				{
+					method: "POST",
+				},
+			);
+
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+
+			return await res.json();
+		},
 		onError: (error) => {
 			console.log(error);
 			toast.error("Failed to send newsletter. Please try again.");
@@ -49,8 +65,8 @@ export default function ConfirmSendAlert({
 						Are you sure the newsletter is ready to be sent?
 					</AlertDialogTitle>
 					<AlertDialogDescription>
-						This will send the newsletter to your clients. Please verify that
-						all articles are up to standard.
+						This will send the newsletter to your clients. Please verify that all
+						articles are up to standard.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

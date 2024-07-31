@@ -2,8 +2,7 @@ import { createLazyFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { NewsletterWithRecipients } from "@/types";
-import type { APIError } from "@/lib/error";
-import { getData, sendNewsletter } from "@/components/newsletter/actions";
+import { APIError } from "@/lib/error";
 
 import Loading from "@/components/loading";
 import ErrorComponent from "@/components/error";
@@ -18,6 +17,7 @@ import { toast } from "sonner";
 import RecipientsForm from "@/components/newsletter/recipients-form";
 import RecipientsDisplay from "@/components/newsletter/recipients-display";
 import { useMemo } from "react";
+import { useAuthenticatedFetch } from "@/lib/auth";
 
 const ProtectedNewsletter = withProtectedRoute(App);
 export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
@@ -27,12 +27,25 @@ export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
 function App() {
 	const { newsletterId } = Route.useParams();
 
+	const authenticatedFetch = useAuthenticatedFetch();
+
 	const { data, error, isLoading } = useQuery<
 		NewsletterWithRecipients,
 		APIError
 	>({
 		queryKey: ["article", newsletterId],
-		queryFn: () => getData(newsletterId),
+		queryFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/newsletters/${newsletterId}`,
+			);
+
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+
+			return await res.json();
+		},
 	});
 
 	if (isLoading) return <Loading />;
@@ -113,11 +126,25 @@ function FailedNewsletter(
 ) {
 	const queryClient = useQueryClient();
 
+	const authenticatedFetch = useAuthenticatedFetch();
+
 	const { mutate, isPending, isError, error } = useMutation<
 		NewsletterWithRecipients,
 		APIError
 	>({
-		mutationFn: () => sendNewsletter(props.newsletterId),
+		mutationFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/newsletters/${props.newsletterId}/send`,
+				{
+					method: "POST",
+				},
+			);
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
 		onError: (error) => {
 			console.error("Failed to send newsletter:", error);
 			toast.error("Failed to send newsletter. Please try again.");

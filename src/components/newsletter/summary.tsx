@@ -2,24 +2,44 @@ import { useMutation } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
-import type { APIError } from "@/lib/error";
+import { APIError } from "@/lib/error";
 import type { Newsletter } from "@/types";
 
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { updateSummary } from "./actions";
+import { useAuthenticatedFetch } from "@/lib/auth";
 
 export default function Summary(props: {
 	initial: string;
 	newsletterId: string;
 }) {
+	const authenticatedFetch = useAuthenticatedFetch();
+
 	const [summary, setSummary] = useState(props.initial);
 
 	const [isEditing, setIsEditing] = useState(false);
 
 	const { mutate } = useMutation<Newsletter, APIError>({
-		mutationFn: () => updateSummary(props.newsletterId, summary),
+		mutationFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/newsletters/${props.newsletterId}/summary`,
+				{
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						summary,
+					}),
+				},
+			);
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
 		onError: (error) => {
 			console.log(error);
 			toast.error("Failed to update summary. Please try again.");

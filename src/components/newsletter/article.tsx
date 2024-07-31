@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TextAreaRef } from "rc-textarea";
 
 import type { Article } from "@/types";
-import type { APIError } from "@/lib/error";
+import { APIError } from "@/lib/error";
 
 import { Card, CardTitle } from "../ui/card";
 import { Textarea } from "../ui/textarea";
@@ -20,12 +20,14 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { removeArticle, saveArticleDescription } from "./actions";
+import { useAuthenticatedFetch } from "@/lib/auth";
 
 export default function ArticleComponent(props: {
 	article: Article;
 	newsletterId: string;
 }) {
+	const authenticatedFetch = useAuthenticatedFetch();
+
 	const textareaRef = useRef<TextAreaRef>(null);
 
 	const [isEditing, setIsEditing] = useState(false);
@@ -47,7 +49,25 @@ export default function ArticleComponent(props: {
 	}, []);
 
 	const { mutate } = useMutation<Article, APIError>({
-		mutationFn: () => saveArticleDescription(props.article.id, description),
+		mutationFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/articles/${props.article.id}/description`,
+				{
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						description,
+					}),
+				},
+			);
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
 		onError: (error) => {
 			console.log(error);
 			toast.error("Failed to update description. Please try again.");
@@ -110,8 +130,22 @@ export default function ArticleComponent(props: {
 function RemoveArticleAlert(props: { article: Article; newsletterId: string }) {
 	const queryClient = useQueryClient();
 
+	const authenticatedFetch = useAuthenticatedFetch();
+
 	const { mutate } = useMutation<Article, APIError>({
-		mutationFn: () => removeArticle(props.article.id),
+		mutationFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/articles/${props.article.id}`,
+				{
+					method: "DELETE",
+				},
+			);
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ["article", props.newsletterId],

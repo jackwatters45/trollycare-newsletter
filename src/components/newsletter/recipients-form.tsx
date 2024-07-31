@@ -18,6 +18,7 @@ import {
 	Form,
 	FormDescription,
 } from "@/components/ui/form";
+import { useAuthenticatedFetch } from "@/lib/auth";
 
 const formSchema = z.object({
 	recipients: z.array(z.string()),
@@ -56,29 +57,29 @@ export default function RecipientsForm(props: {
 	);
 }
 
-async function removeRecipient(email: string) {
-	const escapedEmail = encodeURIComponent(email);
-	const res = await fetch(
-		`${import.meta.env.VITE_API_URL}/api/recipients/${escapedEmail}`,
-		{
-			method: "DELETE",
-		},
-	);
-
-	if (!res.ok) {
-		const errorData = await res.json().catch(() => null);
-		throw APIError.fromResponse(res, errorData);
-	}
-	return await res.json();
-}
-
 function RecipientsInput(props: {
 	form: UseFormReturn<z.infer<typeof formSchema>>;
 }) {
 	const queryClient = useQueryClient();
 
+	const authenticatedFetch = useAuthenticatedFetch();
+
 	const { mutate: removeMutate } = useMutation<string[], APIError, string>({
-		mutationFn: (email: string) => removeRecipient(email),
+		mutationFn: async (email: string) => {
+			const escapedEmail = encodeURIComponent(email);
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/recipients/${escapedEmail}`,
+				{
+					method: "DELETE",
+				},
+			);
+
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipients"] }),
 		onError: (error) => {
 			console.log(error);
@@ -127,27 +128,6 @@ function RecipientsInput(props: {
 	);
 }
 
-async function addRecipients(emails: string[]) {
-	const results = await Promise.all(
-		emails.map(async (email) => {
-			const escapedEmail = encodeURIComponent(email.trim());
-			const res = await fetch(
-				`${import.meta.env.VITE_API_URL}/api/recipients/${escapedEmail}`,
-				{
-					method: "POST",
-				},
-			);
-
-			if (!res.ok) {
-				const errorData = await res.json().catch(() => null);
-				throw APIError.fromResponse(res, errorData);
-			}
-			return await res.json();
-		}),
-	);
-	return results;
-}
-
 const emailSchema = z.string().email("Invalid email address");
 
 function NewRecipientInput(props: {
@@ -156,8 +136,29 @@ function NewRecipientInput(props: {
 }) {
 	const queryClient = useQueryClient();
 
+	const authenticatedFetch = useAuthenticatedFetch();
+
 	const { mutate: addMutate } = useMutation<string[], APIError, string[]>({
-		mutationFn: (emails: string[]) => addRecipients(emails),
+		mutationFn: async (emails: string[]) => {
+			const results = await Promise.all(
+				emails.map(async (email) => {
+					const escapedEmail = encodeURIComponent(email.trim());
+					const res = await authenticatedFetch(
+						`${import.meta.env.VITE_API_URL}/api/recipients/${escapedEmail}`,
+						{
+							method: "POST",
+						},
+					);
+
+					if (!res.ok) {
+						const errorData = await res.json().catch(() => null);
+						throw APIError.fromResponse(res, errorData);
+					}
+					return await res.json();
+				}),
+			);
+			return results;
+		},
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipients"] }),
 		onError: (error) => {
 			console.log(error);
