@@ -1,8 +1,6 @@
 // __root.tsx
 import { createRootRoute, Outlet, useRouter } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Toaster } from "@/components/ui/sonner";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Nav from "@/components/nav";
 
 export const Route = createRootRoute({
@@ -25,8 +23,6 @@ function RootComponent() {
 				<Footer />
 			</div>
 			<Toaster />
-			<TanStackRouterDevtools initialIsOpen={false} />
-			<ReactQueryDevtools initialIsOpen={false} />
 		</>
 	);
 }
