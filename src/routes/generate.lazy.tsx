@@ -76,7 +76,8 @@ function GenerateNew() {
 					<AlertDescription>
 						Data generated successfully.{" "}
 						<Link
-							href={`/newsletters/${mutation.data.id}`}
+							to={"/newsletters/$newsletterId"}
+							params={{ newsletterId: mutation.data.id }}
 							className="text-blue-500 hover:underline"
 						>
 							View Newsletter
