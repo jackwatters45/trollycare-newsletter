@@ -65,51 +65,54 @@ export default function Nav() {
 	}, []);
 
 	return (
-		<nav className="flex items-center justify-between p-4">
-			<Link to="/" className="text-lg font-bold hover:no-underline">
-				TrollyCare Newsletter
-			</Link>
+		// <nav className="flex items-center justify-between p-4">
+		<div className="border-b border-border bg-background shadow-sm">
+			<nav className="flex items-center justify-between px-4 py-1  max-w-screen-lg mx-auto">
+				<Link to="/" className="text-lg font-bold hover:no-underline">
+					TrollyCare Newsletter
+				</Link>
 
-			{/* Desktop Navigation */}
-			<div className="hidden sm:flex items-center space-x-2">
-				{session ? (
-					<NavItems logout={handleLogout} closeSheet={closeSheet} />
-				) : (
-					<Link to="/login" className="text-foreground">
-						<Button size="sm" variant="ghost" type="button">
-							Sign In
+				{/* Desktop Navigation */}
+				<div className="hidden sm:flex items-center space-x-2">
+					{session ? (
+						<NavItems logout={handleLogout} closeSheet={closeSheet} />
+					) : (
+						<Link to="/login" className="text-foreground">
+							<Button size="sm" variant="ghost" type="button">
+								Sign In
+							</Button>
+						</Link>
+					)}
+				</div>
+
+				{/* Mobile Navigation */}
+				<Sheet open={isOpen} onOpenChange={setIsOpen}>
+					<SheetTrigger asChild className="sm:hidden">
+						<Button variant="ghost" size="icon">
+							<Menu className="h-5 w-5" />
 						</Button>
-					</Link>
-				)}
-			</div>
-
-			{/* Mobile Navigation */}
-			<Sheet open={isOpen} onOpenChange={setIsOpen}>
-				<SheetTrigger asChild className="sm:hidden">
-					<Button variant="ghost" size="icon">
-						<Menu className="h-5 w-5" />
-					</Button>
-				</SheetTrigger>
-				<SheetContent>
-					<div className="flex flex-col space-y-2 mt-4">
-						{session ? (
-							<NavItems logout={handleLogout} closeSheet={closeSheet} />
-						) : (
-							<Link to="/login">
-								<Button
-									size="sm"
-									variant="ghost"
-									onClick={() => closeSheet}
-									type="button"
-									// className="w-full justify-start"
-								>
-									Sign In
-								</Button>
-							</Link>
-						)}
-					</div>
-				</SheetContent>
-			</Sheet>
-		</nav>
+					</SheetTrigger>
+					<SheetContent>
+						<div className="flex flex-col space-y-2 mt-4">
+							{session ? (
+								<NavItems logout={handleLogout} closeSheet={closeSheet} />
+							) : (
+								<Link to="/login">
+									<Button
+										size="sm"
+										variant="ghost"
+										onClick={() => closeSheet}
+										type="button"
+										// className="w-full justify-start"
+									>
+										Sign In
+									</Button>
+								</Link>
+							)}
+						</div>
+					</SheetContent>
+				</Sheet>
+			</nav>
+		</div>
 	);
 }

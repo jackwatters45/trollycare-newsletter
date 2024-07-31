@@ -109,7 +109,7 @@ function DraftNewsletter(
 					</div>
 				</TabsContent>
 				<TabsContent value="recipients" className="space-y-8">
-					<div className="py-4 mt-4 border border-slate-300 rounded-lg shadow-md">
+					<div className="pt-4 mt-4 border border-slate-300 rounded-lg shadow-md pb-6">
 						<RecipientsForm
 							recipientEmails={recipientEmails}
 							newsletterId={props.newsletterId}
