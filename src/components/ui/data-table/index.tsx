@@ -15,6 +15,7 @@ import type {
 	ColumnDef,
 	ColumnFiltersState,
 	SortingState,
+	TableOptions,
 } from "@tanstack/react-table";
 
 import {
@@ -32,16 +33,20 @@ import { cn } from "@/lib/utils";
 interface DataTableProps<TData extends { id: string }, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	options?: TableOptions<TData>;
 }
 
 export function DataTable<TData extends { id: string }, TValue>({
 	columns,
 	data,
+	options,
 }: DataTableProps<TData, TValue>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],
 	);
+
+	console.log(sorting)
 
 	const table = useReactTable({
 		data,
@@ -58,6 +63,7 @@ export function DataTable<TData extends { id: string }, TValue>({
 			sorting,
 			columnFilters,
 		},
+		...options,
 	});
 
 	return (

@@ -12,11 +12,8 @@ import ReactDOM from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme-provider.tsx";
-import Loading from "./components/loading.tsx";
 import NotFoundPage from "./components/not-found.tsx";
 import { AuthProvider } from "./lib/auth.tsx";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +21,6 @@ const queryClient = new QueryClient();
 const router = createRouter({
 	routeTree,
 	defaultNotFoundComponent: () => <NotFoundPage />,
-	defaultPendingComponent: () => <Loading />,
 	defaultErrorComponent: ({ error }: { error: Error }) => (
 		<ErrorComponent error={error} />
 	),
@@ -62,12 +58,6 @@ function App() {
 			<QueryClientProvider client={queryClient}>
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 					<InnerApp />
-					{import.meta.env.DEV ? (
-						<>
-							<ReactQueryDevtools initialIsOpen={false} />
-							<TanStackRouterDevtools initialIsOpen={false} />
-						</>
-					) : null}
 				</ThemeProvider>
 			</QueryClientProvider>
 		</AuthProvider>
