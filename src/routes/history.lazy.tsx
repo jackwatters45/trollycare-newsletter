@@ -69,7 +69,7 @@ function HistoryTable(props: { newsletters: Newsletter[] }) {
 	return (
 		<div className="container mx-auto">
 			<h2 className="text-2xl font-bold">History</h2>
-			<DataTable columns={columns} data={props.newsletters} />
+			<DataTable columns={columns} data={props.newsletters}  />
 		</div>
 	);
 }
