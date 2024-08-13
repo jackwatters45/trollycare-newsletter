@@ -40,11 +40,7 @@ export default function RecipientsForm(props: {
 	return (
 		<Form {...form}>
 			<form className="space-y-6 container mx-auto">
-				<h2 className="text-2xl font-bold">
-					{props.newsletterId
-						? "Newsletter recipients"
-						: "Default Newsletter Recipients"}
-				</h2>
+				<h2 className="text-2xl font-bold">Newsletter Recipients</h2>
 				<FormDescription>
 					Add email addresses to send your newsletter to. You can add multiple email
 					addresses by separating them with a comma. This will change the recipients

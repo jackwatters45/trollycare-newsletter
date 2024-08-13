@@ -52,7 +52,7 @@ export function NewsletterPreview(props: {
 					</div>
 					<div>
 						{props.categories.map((category) => (
-							<div key={category.id} className="pb-12">
+							<div key={category.name} className="pb-12">
 								<h2 className="text-xl mb-4">{category.name}</h2>
 								{category.articles.map((article) => (
 									<article

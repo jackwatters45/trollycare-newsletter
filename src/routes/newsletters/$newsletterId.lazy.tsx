@@ -1,7 +1,7 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { NewsletterWithRecipients } from "@/types";
+import type { PopulatedNewsletter } from "@/types";
 import { APIError } from "@/lib/error";
 
 import Loading from "@/components/loading";
@@ -29,10 +29,7 @@ function App() {
 
 	const authenticatedFetch = useAuthenticatedFetch();
 
-	const { data, error, isLoading } = useQuery<
-		NewsletterWithRecipients,
-		APIError
-	>({
+	const { data, error, isLoading } = useQuery<PopulatedNewsletter, APIError>({
 		queryKey: ["article", newsletterId],
 		queryFn: async () => {
 			const res = await authenticatedFetch(
@@ -65,7 +62,7 @@ function App() {
 }
 
 function DraftNewsletter(
-	props: NewsletterWithRecipients & { newsletterId: string },
+	props: PopulatedNewsletter & { newsletterId: string },
 ) {
 	const recipientEmails = useMemo(
 		() => props.recipients.map((r) => r.email),
@@ -122,14 +119,14 @@ function DraftNewsletter(
 }
 
 function FailedNewsletter(
-	props: NewsletterWithRecipients & { newsletterId: string },
+	props: PopulatedNewsletter & { newsletterId: string },
 ) {
 	const queryClient = useQueryClient();
 
 	const authenticatedFetch = useAuthenticatedFetch();
 
 	const { mutate, isPending, isError, error } = useMutation<
-		NewsletterWithRecipients,
+		PopulatedNewsletter,
 		APIError
 	>({
 		mutationFn: async () => {
@@ -188,7 +185,7 @@ function FailedNewsletter(
 	);
 }
 
-function SentNewsletter(props: NewsletterWithRecipients) {
+function SentNewsletter(props: PopulatedNewsletter) {
 	const recipientEmails = useMemo(
 		() => props.recipients.map((r) => r.email),
 		[props.recipients],
@@ -216,7 +213,7 @@ function SentNewsletter(props: NewsletterWithRecipients) {
 				</CardContent>
 			</Card>
 			<Separator />
-			<Tabs defaultValue="edit" className="space-y-4">
+			<Tabs defaultValue="preview" className="space-y-4">
 				<TabsList>
 					<TabsTrigger value="preview">Preview</TabsTrigger>
 					<TabsTrigger value="recipients">Recipients</TabsTrigger>
