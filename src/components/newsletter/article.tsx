@@ -69,7 +69,7 @@ export default function ArticleComponent(props: {
 			return await res.json();
 		},
 		onError: (error) => {
-			console.log(error);
+			console.error(error);
 			toast.error("Failed to update description. Please try again.");
 		},
 	});
@@ -152,7 +152,7 @@ function RemoveArticleAlert(props: { article: Article; newsletterId: string }) {
 			});
 		},
 		onError: (error) => {
-			console.log(error);
+			console.error(error);
 			toast.error("Failed to remove article. Please try again.");
 		},
 	});

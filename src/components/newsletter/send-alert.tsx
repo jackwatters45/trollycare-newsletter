@@ -42,7 +42,7 @@ export default function ConfirmSendAlert({
 			return await res.json();
 		},
 		onError: (error) => {
-			console.log(error);
+			console.error(error);
 			toast.error("Failed to send newsletter. Please try again.");
 		},
 		onSuccess: () => {

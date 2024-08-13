@@ -78,7 +78,7 @@ function RecipientsInput(props: {
 		},
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipients"] }),
 		onError: (error) => {
-			console.log(error);
+			console.error(error);
 			toast.error("Failed to remove email. Please try again.");
 		},
 	});
@@ -157,7 +157,7 @@ function NewRecipientInput(props: {
 		},
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipients"] }),
 		onError: (error) => {
-			console.log(error);
+			console.error(error);
 			toast.error("Failed to add email. Please try again.");
 		},
 	});

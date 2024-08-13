@@ -169,7 +169,7 @@ function DeleteNewsletter(props: { newsletterId: string }) {
 			});
 		},
 		onError: (error) => {
-			console.log(error);
+			console.error(error);
 			toast.error("Failed to delete newsletter. Please try again.");
 		},
 	});

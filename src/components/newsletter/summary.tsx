@@ -41,7 +41,7 @@ export default function Summary(props: {
 			return await res.json();
 		},
 		onError: (error) => {
-			console.log(error);
+			console.error(error);
 			toast.error("Failed to update summary. Please try again.");
 		},
 	});
