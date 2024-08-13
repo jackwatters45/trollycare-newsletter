@@ -207,6 +207,9 @@ function NewRecipientInput(props: {
 									onChange={field.onChange}
 									placeholder="Enter email address"
 									className="flex-grow"
+									onKeyDown={(e) => {
+										if (e.key === "Enter") handleClickAdd();
+									}}
 								/>
 								<Button type="button" onClick={handleClickAdd}>
 									Add
