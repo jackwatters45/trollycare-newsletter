@@ -2,14 +2,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Summary from "./summary";
 import ArticleComponent from "./article";
 import ConfirmSendAlert from "./send-alert";
-import type { Newsletter } from "@/types";
+import type { PopulatedNewsletter } from "@/types";
+import { AddArticle } from "./add-article";
+
 
 export default function EditNewsletter(
-	props: Newsletter & { newsletterId: string },
+	props: PopulatedNewsletter & { newsletterId: string },
 ) {
 	return (
 		<>
 			<Summary initial={props.summary} newsletterId={props.newsletterId} />
+			<AddArticle newsletterId={props.newsletterId} />
 			<ul className="space-y-8">
 				{props?.categories?.map((category) => (
 					<Card key={category.name}>
@@ -21,7 +24,7 @@ export default function EditNewsletter(
 								<ul className="space-y-4">
 									{category.articles.map((article) => (
 										<ArticleComponent
-											key={article.title}
+											key={article.id}
 											article={article}
 											newsletterId={props.newsletterId}
 										/>

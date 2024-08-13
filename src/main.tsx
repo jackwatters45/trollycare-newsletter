@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import NotFoundPage from "./components/not-found.tsx";
 import { AuthProvider } from "./lib/auth.tsx";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ function App() {
 			<QueryClientProvider client={queryClient}>
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 					<InnerApp />
+					{import.meta.env.DEV && <ReactQueryDevtools />}
 				</ThemeProvider>
 			</QueryClientProvider>
 		</AuthProvider>

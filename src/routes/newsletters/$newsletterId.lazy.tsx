@@ -30,7 +30,7 @@ function App() {
 	const authenticatedFetch = useAuthenticatedFetch();
 
 	const { data, error, isLoading } = useQuery<PopulatedNewsletter, APIError>({
-		queryKey: ["article", newsletterId],
+		queryKey: ["newsletter", newsletterId],
 		queryFn: async () => {
 			const res = await authenticatedFetch(
 				`${import.meta.env.VITE_API_URL}/api/newsletters/${newsletterId}`,
@@ -44,6 +44,8 @@ function App() {
 			return await res.json();
 		},
 	});
+
+	console.log(data);
 
 	if (isLoading) return <Loading />;
 	if (error) return <ErrorComponent error={error} />;
