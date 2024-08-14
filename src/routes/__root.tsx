@@ -15,8 +15,8 @@ function RootComponent() {
 		<>
 			<div className="w-full h-full">
 				{!isLoginPage ? <Nav /> : null}
-				<div className="container py-16 space-y-8 max-w-screen-lg mx-auto">
-					<main className="flex-1">
+				<div className="container py-16  max-w-screen-lg mx-auto">
+					<main className="flex-1 space-y-8">
 						<Outlet />
 					</main>
 				</div>

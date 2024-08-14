@@ -7,6 +7,8 @@ import type { Recipient } from "@/types";
 import { withProtectedRoute } from "@/components/protected";
 import { useAuthenticatedFetch } from "@/lib/auth";
 import RecipientsForm from "@/components/newsletter/recipients-form";
+import { Separator } from "@/components/ui/separator";
+import EditFrequency from "@/components/newsletter/edit-frequency";
 
 const ProtectedIndex = withProtectedRoute(Index);
 export const Route = createLazyFileRoute("/")({
@@ -34,9 +36,31 @@ function Index() {
 		},
 	});
 
+	useQuery({
+		queryKey: ["newsletters", "frequency"],
+		queryFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/newsletters/frequency`,
+			);
+			
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+
+			return await res.json();
+		},
+	});
+
 	if (isLoading) return <Loading />;
 	if (error) return <ErrorComponent error={error} />;
 	if (!data) return <ErrorComponent error="No data available" />;
 
-	return <RecipientsForm recipientEmails={data} />;
+	return (
+		<>
+			<RecipientsForm recipientEmails={data} />
+			<Separator />
+			<EditFrequency />
+		</>
+	);
 }

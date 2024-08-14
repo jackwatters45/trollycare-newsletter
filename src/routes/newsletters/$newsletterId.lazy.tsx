@@ -45,8 +45,6 @@ function App() {
 		},
 	});
 
-	console.log(data);
-
 	if (isLoading) return <Loading />;
 	if (error) return <ErrorComponent error={error} />;
 	if (!data) return <ErrorComponent error="No data available" />;
