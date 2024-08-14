@@ -7,7 +7,6 @@ import type { Recipient } from "@/types";
 import { withProtectedRoute } from "@/components/protected";
 import { useAuthenticatedFetch } from "@/lib/auth";
 import RecipientsForm from "@/components/newsletter/recipients-form";
-import { Separator } from "@/components/ui/separator";
 import EditFrequency from "@/components/newsletter/edit-frequency";
 
 const ProtectedIndex = withProtectedRoute(Index);
@@ -42,7 +41,7 @@ function Index() {
 			const res = await authenticatedFetch(
 				`${import.meta.env.VITE_API_URL}/api/newsletters/frequency`,
 			);
-			
+
 			if (!res.ok) {
 				const errorData = await res.json().catch(() => null);
 				throw APIError.fromResponse(res, errorData);
@@ -59,7 +58,6 @@ function Index() {
 	return (
 		<>
 			<RecipientsForm recipientEmails={data} />
-			<Separator />
 			<EditFrequency />
 		</>
 	);

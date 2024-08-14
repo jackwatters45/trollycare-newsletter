@@ -5,6 +5,8 @@ import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { X } from "lucide-react";
+import { useRef } from "react";
+import Papa from "papaparse";
 
 import { APIError } from "@/lib/error";
 import { Input } from "@/components/ui/input";
@@ -19,18 +21,32 @@ import {
 	FormDescription,
 } from "@/components/ui/form";
 import { useAuthenticatedFetch } from "@/lib/auth";
+import {
+	AlertDialogDescription,
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+	AlertDialogFooter,
+	AlertDialogCancel,
+	AlertDialogAction,
+} from "../ui/alert-dialog";
+import { Card } from "../ui/card";
 
-const formSchema = z.object({
+const recipientsFormSchema = z.object({
 	recipients: z.array(z.string()),
 	"new-recipient": z.string(),
 });
+
+export type RecipientsFormSchema = z.infer<typeof recipientsFormSchema>;
 
 export default function RecipientsForm(props: {
 	recipientEmails: string[];
 	newsletterId?: string;
 }) {
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<z.infer<typeof recipientsFormSchema>>({
+		resolver: zodResolver(recipientsFormSchema),
 		defaultValues: {
 			recipients: props.recipientEmails,
 			"new-recipient": "",
@@ -38,23 +54,184 @@ export default function RecipientsForm(props: {
 	});
 
 	return (
-		<Form {...form}>
-			<form className="space-y-6 container mx-auto">
-				<h2 className="text-2xl font-bold">Newsletter Recipients</h2>
-				<FormDescription>
-					Add email addresses to send your newsletter to. You can add multiple email
-					addresses by separating them with a comma. This will change the recipients
-					for all-non sent newsletters.
-				</FormDescription>
-				<NewRecipientInput form={form} />
-				<RecipientsInput form={form} />
-			</form>
-		</Form>
+		<Card className="p-6">
+			<Form {...form}>
+				<form className="space-y-8 container px-0 mx-auto">
+					<div className="space-y-6">
+						<h2 className="text-2xl font-bold">Newsletter Recipients</h2>
+						<FormDescription>
+							Add email addresses to send your newsletter to. You can add multiple
+							email addresses by separating them with a comma. This will change the
+							recipients for all-non sent newsletters.
+						</FormDescription>
+					</div>
+					<div className="space-y-4">
+						<div className="flex justify-end items-center space-x-2">
+							<CSVUpload form={form} />
+							<RemoveAllRecipients form={form} />
+						</div>
+						<NewRecipientInput form={form} />
+						<RecipientsInput form={form} />
+					</div>
+				</form>
+			</Form>
+		</Card>
+	);
+}
+
+export function CSVUpload({
+	form,
+}: {
+	form: UseFormReturn<RecipientsFormSchema>;
+}) {
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const queryClient = useQueryClient();
+	const authenticatedFetch = useAuthenticatedFetch();
+
+	const addRecipientsMutation = useMutation<string[], APIError, string[]>({
+		mutationFn: async (emails: string[]) => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/recipients/bulk`,
+				{
+					method: "POST",
+					body: JSON.stringify({ emails }),
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
+		onSuccess: (addedEmails) => {
+			queryClient.invalidateQueries({ queryKey: ["recipients"] });
+			const currentRecipients = form.getValues().recipients;
+			const newRecipients = [...new Set([...currentRecipients, ...addedEmails])];
+			form.setValue("recipients", newRecipients);
+			toast.success(`Added ${addedEmails.length} new recipient(s)`);
+		},
+		onError: (error) => {
+			console.error(error);
+			toast.error("Failed to add recipients. Please try again.");
+		},
+	});
+
+	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			Papa.parse(file, {
+				complete: (results: Papa.ParseResult<string[]>) => {
+					const emails = results.data
+						.flat()
+						.filter((email: string) => email.includes("@"));
+
+					addRecipientsMutation.mutate(emails);
+				},
+				error: (error) => {
+					console.error("Error parsing CSV:", error);
+					toast.error("Failed to parse CSV file. Please check the file format.");
+				},
+			});
+		}
+	};
+
+	const handleButtonClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	return (
+		<div>
+			<input
+				type="file"
+				ref={fileInputRef}
+				onChange={handleFileChange}
+				accept=".csv"
+				className="hidden"
+			/>
+			<Button
+				type="button"
+				size="xs"
+				variant="secondary"
+				className="text-xs"
+				onClick={handleButtonClick}
+				disabled={addRecipientsMutation.isPending}
+			>
+				{addRecipientsMutation.isPending ? "Uploading..." : "Upload CSV"}
+			</Button>
+		</div>
+	);
+}
+
+function RemoveAllRecipients(props: {
+	form: UseFormReturn<RecipientsFormSchema>;
+}) {
+	const queryClient = useQueryClient();
+	const authenticatedFetch = useAuthenticatedFetch();
+
+	const mutation = useMutation({
+		mutationFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/recipients/all`,
+				{
+					method: "DELETE",
+				},
+			);
+
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw new Error(errorData?.message);
+			}
+
+			return await res.json();
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["recipients"] });
+			props.form.setValue("recipients", []);
+			toast.success("Removed all recipients");
+		},
+		onError: (error) => {
+			console.error(error);
+			toast.error("Failed to remove email. Please try again.");
+		},
+	});
+
+	const onConfirm = () => mutation.mutate();
+
+	return (
+		<AlertDialog>
+			<AlertDialogTrigger asChild>
+				<Button
+					type="button"
+					size={"xs"}
+					variant={"destructive"}
+					className="text-xs"
+					disabled={mutation.isPending}
+				>
+					Remove All Recipients
+				</Button>
+			</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>
+						Are you sure you want to remove all recipients?
+					</AlertDialogTitle>
+					<AlertDialogDescription>
+						Please confirm that you want to remove all recipients from the newsletter.
+					</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogAction onClick={onConfirm}>Confirm</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
 	);
 }
 
 function RecipientsInput(props: {
-	form: UseFormReturn<z.infer<typeof formSchema>>;
+	form: UseFormReturn<RecipientsFormSchema>;
 }) {
 	const queryClient = useQueryClient();
 
@@ -128,10 +305,9 @@ const emailSchema = z.string().email("Invalid email address");
 
 function NewRecipientInput(props: {
 	newsletterId?: string;
-	form: UseFormReturn<z.infer<typeof formSchema>>;
+	form: UseFormReturn<RecipientsFormSchema>;
 }) {
 	const queryClient = useQueryClient();
-
 	const authenticatedFetch = useAuthenticatedFetch();
 
 	const { mutate: addMutate } = useMutation<string[], APIError, string[]>({
@@ -162,14 +338,18 @@ function NewRecipientInput(props: {
 		},
 	});
 
-	const handleClickAdd = () => {
+	const handleClickAdd = (
+		e:
+			| React.MouseEvent<HTMLButtonElement>
+			| React.KeyboardEvent<HTMLInputElement>,
+	) => {
+		e.preventDefault();
+
 		const values = props.form.getValues();
 		const newRecipientInput = values["new-recipient"];
 		const existingRecipients = values.recipients;
 
-		if (!newRecipientInput) {
-			return false;
-		}
+		if (!newRecipientInput) return false;
 
 		const newEmails = newRecipientInput.split(",").map((email) => email.trim());
 		const validNewEmails = newEmails.filter((email) => {
@@ -208,7 +388,7 @@ function NewRecipientInput(props: {
 									placeholder="Enter email address"
 									className="flex-grow"
 									onKeyDown={(e) => {
-										if (e.key === "Enter") handleClickAdd();
+										if (e.key === "Enter") handleClickAdd(e);
 									}}
 								/>
 								<Button type="button" onClick={handleClickAdd}>
