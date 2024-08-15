@@ -43,7 +43,7 @@ function GenerateNew() {
 	return (
 		<div className="max-w-3xl mx-auto px-4">
 			<h1 className="text-3xl font-bold text-center mb-6">Newsletter Generator</h1>
-			<div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded">
+			<div className="bg-accent border-l-4 border-muted-foreground text-muted-foreground p-4 mb-6 rounded shadow-md">
 				<p className="font-bold">Manual Newsletter Generation</p>
 				<p className="mt-2">
 					This page allows you to create a new newsletter manually. While we have an
@@ -60,13 +60,13 @@ function GenerateNew() {
 			</div>
 			<Button
 				onClick={handleGenerate}
-				className="block w-48 mx-auto mb-5 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-300"
+				className="block mx-auto"
 				disabled={mutation.isPending}
 			>
 				Generate New Data
 			</Button>
 			{mutation.isPending && (
-				<div className="text-center text-sm text-gray-600 mt-3">
+				<div className="text-center text-sm text-muted-foreground mt-3">
 					Generation will take a few minutes...
 				</div>
 			)}

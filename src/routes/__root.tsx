@@ -2,6 +2,7 @@
 import { createRootRoute, Outlet, useRouter } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import Nav from "@/components/nav";
+import Footer from "@/components/footer";
 
 export const Route = createRootRoute({
 	component: RootComponent,
@@ -24,19 +25,5 @@ function RootComponent() {
 			</div>
 			<Toaster />
 		</>
-	);
-}
-
-function Footer() {
-	return (
-		<footer className="h-12 border-t border-border w-full text-sm text-muted-foreground fixed bottom-0 z-10 bg-background">
-			<div className="mx-auto h-full flex items-center justify-between max-w-screen-lg px-8">
-				<div />
-				<div className="flex items-center gap-4">
-					<a href="https://trollycare.com">&copy;TrollyCare</a>
-					<div>{new Date().getFullYear()}</div>
-				</div>
-			</div>
-		</footer>
 	);
 }

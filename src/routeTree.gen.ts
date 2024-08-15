@@ -19,6 +19,7 @@ import { Route as rootRoute } from './routes/__root'
 const LoginLazyImport = createFileRoute('/login')()
 const HistoryLazyImport = createFileRoute('/history')()
 const GenerateLazyImport = createFileRoute('/generate')()
+const ExampleLazyImport = createFileRoute('/example')()
 const IndexLazyImport = createFileRoute('/')()
 const NewslettersNewsletterIdLazyImport = createFileRoute(
   '/newsletters/$newsletterId',
@@ -40,6 +41,11 @@ const GenerateLazyRoute = GenerateLazyImport.update({
   path: '/generate',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/generate.lazy').then((d) => d.Route))
+
+const ExampleLazyRoute = ExampleLazyImport.update({
+  path: '/example',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/example.lazy').then((d) => d.Route))
 
 const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
@@ -63,6 +69,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/example': {
+      id: '/example'
+      path: '/example'
+      fullPath: '/example'
+      preLoaderRoute: typeof ExampleLazyImport
       parentRoute: typeof rootRoute
     }
     '/generate': {
@@ -100,6 +113,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
+  ExampleLazyRoute,
   GenerateLazyRoute,
   HistoryLazyRoute,
   LoginLazyRoute,
@@ -115,6 +129,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/example",
         "/generate",
         "/history",
         "/login",
@@ -123,6 +138,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/example": {
+      "filePath": "example.lazy.tsx"
     },
     "/generate": {
       "filePath": "generate.lazy.tsx"

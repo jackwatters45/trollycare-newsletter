@@ -93,7 +93,7 @@ export default function ArticleComponent(props: {
 				{...props.attributes}
 				{...props.listeners}
 			>
-				<div className="cursor-grab active:cursor-grabbing hover:bg-accent rounded-md p-1">
+				<div className="cursor-grab active:cursor-grabbing hover:bg-accent rounded-md p-1 text-muted-foreground">
 					<DragHandleIcon />
 				</div>
 			</div>
