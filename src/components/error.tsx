@@ -3,7 +3,7 @@ import type { APIError } from "../lib/error";
 import { AlertCircle } from "lucide-react";
 
 interface ErrorProps {
-	error?: APIError | Error | string;
+	error?: APIError | Error | string | null;
 }
 
 export default function ErrorComponent({ error }: ErrorProps) {

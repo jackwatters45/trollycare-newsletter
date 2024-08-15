@@ -67,11 +67,11 @@ export default function RecipientsForm(props: {
 					</div>
 					<div className="space-y-4">
 						<div className="flex justify-end items-center space-x-2">
-							<CSVUpload form={form} />
-							<RemoveAllRecipients form={form} />
+							<CSVUpload form={form} newsletterId={props.newsletterId} />
+							<RemoveAllRecipients form={form} newsletterId={props.newsletterId} />
 						</div>
-						<NewRecipientInput form={form} />
-						<RecipientsInput form={form} />
+						<NewRecipientInput form={form} newsletterId={props.newsletterId} />
+						<RecipientsInput form={form} newsletterId={props.newsletterId} />
 					</div>
 				</form>
 			</Form>
@@ -79,11 +79,12 @@ export default function RecipientsForm(props: {
 	);
 }
 
-export function CSVUpload({
-	form,
-}: {
+interface RecipientsFormInputProps {
 	form: UseFormReturn<RecipientsFormSchema>;
-}) {
+	newsletterId?: string;
+}
+
+export function CSVUpload(props: RecipientsFormInputProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const queryClient = useQueryClient();
 	const authenticatedFetch = useAuthenticatedFetch();
@@ -107,9 +108,15 @@ export function CSVUpload({
 		},
 		onSuccess: (addedEmails) => {
 			queryClient.invalidateQueries({ queryKey: ["recipients"] });
-			const currentRecipients = form.getValues().recipients;
+			console.log(props.newsletterId);
+			if (props.newsletterId) {
+				queryClient.invalidateQueries({
+					queryKey: ["newsletter", props.newsletterId],
+				});
+			}
+			const currentRecipients = props.form.getValues().recipients;
 			const newRecipients = [...new Set([...currentRecipients, ...addedEmails])];
-			form.setValue("recipients", newRecipients);
+			props.form.setValue("recipients", newRecipients);
 			toast.success(`Added ${addedEmails.length} new recipient(s)`);
 		},
 		onError: (error) => {
@@ -164,9 +171,7 @@ export function CSVUpload({
 	);
 }
 
-function RemoveAllRecipients(props: {
-	form: UseFormReturn<RecipientsFormSchema>;
-}) {
+function RemoveAllRecipients(props: RecipientsFormInputProps) {
 	const queryClient = useQueryClient();
 	const authenticatedFetch = useAuthenticatedFetch();
 
@@ -188,6 +193,11 @@ function RemoveAllRecipients(props: {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["recipients"] });
+			if (props.newsletterId) {
+				queryClient.invalidateQueries({
+					queryKey: ["newsletter", props.newsletterId],
+				});
+			}
 			props.form.setValue("recipients", []);
 			toast.success("Removed all recipients");
 		},
@@ -230,9 +240,7 @@ function RemoveAllRecipients(props: {
 	);
 }
 
-function RecipientsInput(props: {
-	form: UseFormReturn<RecipientsFormSchema>;
-}) {
+function RecipientsInput(props: RecipientsFormInputProps) {
 	const queryClient = useQueryClient();
 
 	const authenticatedFetch = useAuthenticatedFetch();
@@ -253,7 +261,14 @@ function RecipientsInput(props: {
 			}
 			return await res.json();
 		},
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipients"] }),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["recipients"] });
+			if (props.newsletterId) {
+				queryClient.invalidateQueries({
+					queryKey: ["newsletter", props.newsletterId],
+				});
+			}
+		},
 		onError: (error) => {
 			console.error(error);
 			toast.error("Failed to remove email. Please try again.");
@@ -303,10 +318,7 @@ function RecipientsInput(props: {
 
 const emailSchema = z.string().email("Invalid email address");
 
-function NewRecipientInput(props: {
-	newsletterId?: string;
-	form: UseFormReturn<RecipientsFormSchema>;
-}) {
+function NewRecipientInput(props: RecipientsFormInputProps) {
 	const queryClient = useQueryClient();
 	const authenticatedFetch = useAuthenticatedFetch();
 
@@ -331,7 +343,14 @@ function NewRecipientInput(props: {
 			);
 			return results;
 		},
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipients"] }),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["recipients"] });
+			if (props.newsletterId) {
+				queryClient.invalidateQueries({
+					queryKey: ["newsletter", props.newsletterId],
+				});
+			}
+		},
 		onError: (error) => {
 			console.error(error);
 			toast.error("Failed to add email. Please try again.");

@@ -7,8 +7,11 @@ import type { PopulatedNewsletter } from "@/types";
 import { AddArticle } from "./add-article";
 import { CategoryCard } from "./category-card";
 import useNewsletter from "./useNewsletter";
-
-// TODO: backend
+import { useGetRecipients } from "@/lib/hooks";
+import ErrorComponent from "../error";
+import Loading from "../loading";
+import { Link } from "@tanstack/react-router";
+import { Button } from "../ui/button";
 
 export default function EditNewsletter(
 	props: PopulatedNewsletter & { newsletterId: string },
@@ -22,6 +25,13 @@ export default function EditNewsletter(
 		handleDragEnd,
 		handleDragOver,
 	} = useNewsletter(props);
+
+	const recipientsQuery = useGetRecipients();
+
+	if (recipientsQuery.isLoading) return <Loading />;
+	if (recipientsQuery.error)
+		return <ErrorComponent error={recipientsQuery.error} />;
+	if (!recipientsQuery.data) return <ErrorComponent error="No data available" />;
 
 	return (
 		<>
@@ -51,12 +61,21 @@ export default function EditNewsletter(
 					) : null}
 				</DragOverlay>
 			</DndContext>
-			{props.status === "DRAFT" && (
-				<div className="w-full flex justify-end">
-					<ConfirmSendAlert newsletterId={props.newsletterId} />
-				</div>
-			)}
 			<AddArticle newsletterId={props.newsletterId} />
+			<div className="w-full flex justify-end pb-8">
+				{props.status === "DRAFT" && recipientsQuery.data.length > 0 && (
+					<div className="w-full flex justify-end">
+						<ConfirmSendAlert newsletterId={props.newsletterId} />
+					</div>
+				)}
+				{recipientsQuery.data.length === 0 && (
+					<Link to="/">
+						<Button variant="destructive" className="w-full justify-start">
+							No recipients found. Please add recipients to the newsletter.
+						</Button>
+					</Link>
+				)}
+			</div>
 		</>
 	);
 }

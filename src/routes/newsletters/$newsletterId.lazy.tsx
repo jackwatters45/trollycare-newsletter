@@ -18,6 +18,7 @@ import RecipientsForm from "@/components/newsletter/recipients-form";
 import RecipientsDisplay from "@/components/newsletter/recipients-display";
 import { useMemo } from "react";
 import { useAuthenticatedFetch } from "@/lib/auth";
+import { useGetRecipients } from "@/lib/hooks";
 
 const ProtectedNewsletter = withProtectedRoute(App);
 export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
@@ -26,6 +27,8 @@ export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
 
 function App() {
 	const { newsletterId } = Route.useParams();
+
+	useGetRecipients();
 
 	const authenticatedFetch = useAuthenticatedFetch();
 

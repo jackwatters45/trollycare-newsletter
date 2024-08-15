@@ -65,6 +65,7 @@ function GenerateNew() {
 			>
 				Generate New Data
 			</Button>
+
 			{mutation.isPending && (
 				<div className="text-center text-sm text-muted-foreground mt-3">
 					Generation will take a few minutes...

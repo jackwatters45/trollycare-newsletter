@@ -135,7 +135,6 @@ function SecretTest() {
 					Simulate Email Sending
 				</Button>
 			</div>
-
 			{fullMutation.isPending && (
 				<div className="text-center text-sm text-gray-600 mt-3">
 					Simulating process... This usually takes a few minutes in the real system.
