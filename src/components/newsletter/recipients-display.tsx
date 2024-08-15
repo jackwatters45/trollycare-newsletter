@@ -5,7 +5,7 @@ interface RecipientBadgesProps {
 	recipientEmails: string[];
 }
 
-const RecipientDisplay: React.FC<RecipientBadgesProps> = ({
+const RecipientsDisplay: React.FC<RecipientBadgesProps> = ({
 	recipientEmails,
 }) => (
 	<div className="flex items-center flex-wrap gap-1">
@@ -17,4 +17,4 @@ const RecipientDisplay: React.FC<RecipientBadgesProps> = ({
 	</div>
 );
 
-export default RecipientDisplay;
+export default RecipientsDisplay;

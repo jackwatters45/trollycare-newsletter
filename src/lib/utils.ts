@@ -1,6 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { RECURRING_FREQUENCY } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -12,12 +11,17 @@ export function validateEmail(emails: string[]) {
 	return emails.filter((email) => email && emailRegex.test(email));
 }
 
-export function getPastWeekDate(endDate: Date | string): {
+export function getPastWeekDate(
+	endDate: Date | string,
+	frequency: number,
+): {
 	start: string;
 	end: string;
 	year: number;
 } {
-	const pastWeek = new Date(endDate).getTime() - RECURRING_FREQUENCY;
+	console.log(endDate, frequency);
+
+	const pastWeek = new Date(endDate).getTime() - frequency;
 	const formattedPastWeek = new Date(pastWeek).toLocaleDateString("en-US", {
 		year: "numeric",
 		month: "long",
@@ -42,4 +46,10 @@ export function truncateText(value: string, truncLength = 20) {
 	return value.length > truncLength
 		? `${value.slice(0, truncLength)}...`
 		: value;
+}
+
+export function weeksToMilliseconds(weeks?: number): number | null {
+	if (!weeks) return null;
+	const MILLISECONDS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+	return weeks * MILLISECONDS_PER_WEEK;
 }

@@ -66,8 +66,8 @@ export default function Nav() {
 
 	return (
 		// <nav className="flex items-center justify-between p-4">
-		<div className="border-b border-border bg-background shadow-sm">
-			<nav className="flex items-center justify-between px-4 py-1  max-w-screen-lg mx-auto">
+		<div className="border-b border-border bg-background shadow-sm fixed w-full">
+			<nav className="flex items-center justify-between px-4 py-1  max-w-screen-lg mx-auto z-50">
 				<Link to="/" className="text-lg font-bold hover:no-underline">
 					TrollyCare Newsletter
 				</Link>

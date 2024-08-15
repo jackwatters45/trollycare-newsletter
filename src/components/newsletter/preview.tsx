@@ -1,13 +1,48 @@
+import { useAuthenticatedFetch } from "@/lib/auth";
 import { COMPANY_NAME } from "@/lib/constants";
-import { getPastWeekDate } from "@/lib/utils";
+import { APIError } from "@/lib/error";
+import { getPastWeekDate, weeksToMilliseconds } from "@/lib/utils";
 import type { Category } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import Loading from "../loading";
+import ErrorComponent from "../error";
 
 export function NewsletterPreview(props: {
 	sendDate: string;
 	summary: string;
 	categories: Category[];
 }) {
-	const dates = getPastWeekDate(props.sendDate);
+	const authenticatedFetch = useAuthenticatedFetch();
+	const {
+		data: frequency,
+		isLoading,
+		error,
+	} = useQuery<{ weeks: number }>({
+		queryKey: ["newsletters", "frequency"],
+		queryFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/newsletters/frequency`,
+			);
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
+		refetchOnWindowFocus: false,
+	});
+
+	const frequencyMS = weeksToMilliseconds(frequency?.weeks);
+	const dates = useMemo(() => {
+		if (!frequencyMS) return null;
+		return getPastWeekDate(new Date(props.sendDate), frequencyMS);
+	}, [props.sendDate, frequencyMS]);
+
+	if (isLoading) return <Loading />;
+	if (error) return <ErrorComponent error={error} />;
+
+	if (!dates) return <ErrorComponent error="Could not load dates" />;
 
 	return (
 		<div className="bg-white text-slate-900 font-sans max-w-[600px] mx-auto p-5 leading-relaxed">

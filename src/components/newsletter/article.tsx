@@ -21,10 +21,15 @@ import {
 	AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { useAuthenticatedFetch } from "@/lib/auth";
+import { GripVertical } from "lucide-react";
+import type { DraggableAttributes } from "@dnd-kit/core";
+import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
 export default function ArticleComponent(props: {
 	article: Article;
 	newsletterId: string;
+	attributes?: DraggableAttributes;
+	listeners?: SyntheticListenerMap;
 }) {
 	const authenticatedFetch = useAuthenticatedFetch();
 
@@ -79,49 +84,62 @@ export default function ArticleComponent(props: {
 		setIsEditing(false);
 	}, [mutate]);
 
+	if (!props.article) return null;
+
 	return (
-		<Card className="space-y-2 border rounded-md border-border py-4">
-			<CardTitle className="font-bold flex-1 text-lg px-6">
-				<a
-					href={props.article.link}
-					target="_blank"
-					rel="noreferrer"
-					className="font-bold"
-				>
-					{props.article.title}
-				</a>
-			</CardTitle>
-			<div>
-				<div className="w-full px-3">
-					<Textarea
-						id={props.article.title}
-						value={description}
-						onChange={(e) => setDescription(e.target.value)}
-						disabled={!isEditing}
-						className="disabled:cursor-pointer"
-						ref={textareaRef}
-					/>
+		<Card className="space-y-2 border rounded-md border-border py-4 flex flex-1">
+			<div
+				className="pl-3 pt-4 -mr-3 z-10 h-fit"
+				{...props.attributes}
+				{...props.listeners}
+			>
+				<div className="cursor-grab active:cursor-grabbing hover:bg-accent rounded-md p-1">
+					<DragHandleIcon />
 				</div>
 			</div>
-			<div className="flex items-center justify-between space-x-4 px-6">
-				<div className="space-x-4 pt-2">
-					{isEditing ? (
-						<Button size={"sm"} variant={"secondary"} onClick={handleSaveClick}>
-							Save
-						</Button>
-					) : (
-						<Button size={"sm"} onClick={handleEditClick}>
-							Edit
-						</Button>
-					)}
-					{isEditing && (
-						<span className="text-sm text-muted-foreground">(Editing)</span>
-					)}
+			<div className="flex-1">
+				<CardTitle className="font-bold flex-1 w-full text-lg px-6">
+					<a
+						href={props.article.link}
+						target="_blank"
+						rel="noreferrer"
+						className="font-bold"
+					>
+						{props.article.title}
+					</a>
+				</CardTitle>
+				<div>
+					<div className="w-full px-3">
+						<Textarea
+							id={props.article.title}
+							value={description}
+							onChange={(e) => setDescription(e.target.value)}
+							disabled={!isEditing}
+							className="disabled:cursor-auto"
+							ref={textareaRef}
+						/>
+					</div>
 				</div>
-				<RemoveArticleAlert
-					article={props.article}
-					newsletterId={props.newsletterId}
-				/>
+				<div className="flex items-center justify-between space-x-4 px-6 pt-2">
+					<div className="space-x-4">
+						{isEditing ? (
+							<Button size={"sm"} variant={"secondary"} onClick={handleSaveClick}>
+								Save
+							</Button>
+						) : (
+							<Button size={"sm"} onClick={handleEditClick}>
+								Edit
+							</Button>
+						)}
+						{isEditing && (
+							<span className="text-sm text-muted-foreground">(Editing)</span>
+						)}
+					</div>
+					<RemoveArticleAlert
+						article={props.article}
+						newsletterId={props.newsletterId}
+					/>
+				</div>
 			</div>
 		</Card>
 	);
@@ -183,5 +201,13 @@ function RemoveArticleAlert(props: { article: Article; newsletterId: string }) {
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
+	);
+}
+
+function DragHandleIcon() {
+	return (
+		<div className="cursor-grab active:cursor-grabbing">
+			<GripVertical className="h-5 w-5" />
+		</div>
 	);
 }
