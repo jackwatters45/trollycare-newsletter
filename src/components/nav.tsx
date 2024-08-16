@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
+import { APP_NAME } from "@/lib/constants";
 
 const NavItems = memo(
 	({ logout, closeSheet }: { logout: () => void; closeSheet: () => void }) => (
@@ -68,7 +69,7 @@ export default function Nav() {
 		<div className="border-b border-border bg-background shadow-sm fixed w-full z-50">
 			<nav className="flex items-center justify-between px-4 py-1  max-w-screen-lg mx-auto">
 				<Link to="/" className="text-lg font-bold hover:no-underline">
-					TrollyCare Newsletter
+					{APP_NAME}
 				</Link>
 
 				{/* Desktop Navigation */}
