@@ -13,6 +13,8 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as UpdatePasswordImport } from './routes/update-password'
+import { Route as ResetPasswordImport } from './routes/reset-password'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
 
@@ -41,6 +43,16 @@ const ExampleLazyRoute = ExampleLazyImport.update({
   path: '/example',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/example.lazy').then((d) => d.Route))
+
+const UpdatePasswordRoute = UpdatePasswordImport.update({
+  path: '/update-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ResetPasswordRoute = ResetPasswordImport.update({
+  path: '/reset-password',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const LoginRoute = LoginImport.update({
   path: '/login',
@@ -76,6 +88,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordImport
+      parentRoute: typeof rootRoute
+    }
+    '/update-password': {
+      id: '/update-password'
+      path: '/update-password'
+      fullPath: '/update-password'
+      preLoaderRoute: typeof UpdatePasswordImport
       parentRoute: typeof rootRoute
     }
     '/example': {
@@ -114,6 +140,8 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
   LoginRoute,
+  ResetPasswordRoute,
+  UpdatePasswordRoute,
   ExampleLazyRoute,
   GenerateLazyRoute,
   HistoryLazyRoute,
@@ -130,6 +158,8 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/login",
+        "/reset-password",
+        "/update-password",
         "/example",
         "/generate",
         "/history",
@@ -141,6 +171,12 @@ export const routeTree = rootRoute.addChildren({
     },
     "/login": {
       "filePath": "login.tsx"
+    },
+    "/reset-password": {
+      "filePath": "reset-password.tsx"
+    },
+    "/update-password": {
+      "filePath": "update-password.tsx"
     },
     "/example": {
       "filePath": "example.lazy.tsx"

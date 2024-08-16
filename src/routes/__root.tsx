@@ -10,18 +10,21 @@ export const Route = createRootRoute({
 
 function RootComponent() {
 	const router = useRouter();
-	const isLoginPage = router.state.location.pathname === "/login";
+
+	const pagesWithoutLayout = ["/login", "/reset-password", "/update-password"];
+
+	const isAuthPage = pagesWithoutLayout.includes(router.state.location.pathname);
 
 	return (
 		<>
 			<div className="w-full h-full">
-				{!isLoginPage ? <Nav /> : null}
+				{!isAuthPage ? <Nav /> : null}
 				<div className="container pb-16 pt-24 max-w-screen-lg mx-auto">
 					<main className="flex-1 space-y-8">
 						<Outlet />
 					</main>
 				</div>
-				<Footer />
+				{!isAuthPage ? <Footer /> : null}
 			</div>
 			<Toaster />
 		</>
