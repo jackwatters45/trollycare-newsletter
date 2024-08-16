@@ -1,10 +1,10 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Auth } from "@supabase/auth-ui-react";
 import { supabase, useAuth } from "@/lib/auth";
 import { Navigate } from "@tanstack/react-router";
 
-export const Route = createLazyFileRoute("/login")({
+export const Route = createFileRoute("/login")({
 	component: Login,
 });
 

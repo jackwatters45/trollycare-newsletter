@@ -1,4 +1,4 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { APIError } from "@/lib/error";
 import Loading from "@/components/loading";
@@ -10,7 +10,7 @@ import EditFrequency from "@/components/newsletter/edit-frequency";
 import { useGetRecipients } from "@/lib/hooks";
 
 const ProtectedIndex = withProtectedRoute(Index);
-export const Route = createLazyFileRoute("/")({
+export const Route = createFileRoute("/")({
 	component: ProtectedIndex,
 });
 
