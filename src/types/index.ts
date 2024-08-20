@@ -30,3 +30,8 @@ export interface Article {
 export interface Recipient {
 	email: string;
 }
+
+export interface Reviewer {
+	id: number;
+	email: string;
+}
