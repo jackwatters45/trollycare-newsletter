@@ -12,9 +12,22 @@ export interface Category {
 	articles: Article[];
 }
 
+
+export interface Ad {
+	id: string;
+	title: string;
+	link: string;
+	company: string;
+	description?: string;
+	imageUrl?: string;
+	order: number;
+	type: "BANNER" | "INLINE";
+}
+
 export interface PopulatedNewsletter extends Newsletter {
 	recipients: Recipient[];
 	categories: Category[];
+	ads: Ad[];
 }
 
 export interface Article {
@@ -35,3 +48,5 @@ export interface Reviewer {
 	id: number;
 	email: string;
 }
+
+

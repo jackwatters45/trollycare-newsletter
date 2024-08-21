@@ -2,7 +2,7 @@ import { useAuthenticatedFetch } from "@/lib/auth";
 import { COMPANY_NAME } from "@/lib/constants";
 import { APIError } from "@/lib/error";
 import { getPastWeekDate, weeksToMilliseconds } from "@/lib/utils";
-import type { Category } from "@/types";
+import type { Ad, Category } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import Loading from "../loading";
@@ -12,6 +12,7 @@ export function NewsletterPreview(props: {
 	sendDate: string;
 	summary: string;
 	categories: Category[];
+	ads: Ad[];
 }) {
 	const authenticatedFetch = useAuthenticatedFetch();
 	const {

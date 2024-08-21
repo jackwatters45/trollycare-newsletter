@@ -105,6 +105,7 @@ function DraftNewsletter(
 							sendDate={props.createdAt}
 							summary={props?.summary}
 							categories={props?.categories}
+							ads={props?.ads}
 						/>
 					</div>
 				</TabsContent>
@@ -227,6 +228,7 @@ function SentNewsletter(props: PopulatedNewsletter) {
 							sendDate={props.createdAt}
 							summary={props?.summary}
 							categories={props?.categories}
+							ads={props?.ads}
 						/>
 					</div>
 				</TabsContent>
