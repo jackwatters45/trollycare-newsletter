@@ -33,6 +33,7 @@ import {
 	AlertDialogAction,
 } from "../ui/alert-dialog";
 import { Card } from "../ui/card";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const reviewersFormSchema = z.object({
 	reviewers: z.array(z.string()),
@@ -243,6 +244,8 @@ function RemoveAllReviewers(props: ReviewersFormInputProps) {
 function ReviewersInput(props: ReviewersFormInputProps) {
 	const queryClient = useQueryClient();
 
+	const [parent] = useAutoAnimate();
+
 	const authenticatedFetch = useAuthenticatedFetch();
 
 	const { mutate: removeMutate } = useMutation<string[], APIError, string>({
@@ -293,7 +296,7 @@ function ReviewersInput(props: ReviewersFormInputProps) {
 					<FormItem>
 						<FormLabel className="sr-only">Newsletter Reviewers</FormLabel>
 						<FormControl>
-							<div className="flex items-center flex-wrap gap-1">
+							<div className="flex items-center flex-wrap gap-1" ref={parent}>
 								{field.value.map((email) => (
 									<Badge key={email} className="hover:bg-primary">
 										{email}
