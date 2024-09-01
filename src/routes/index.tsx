@@ -10,6 +10,7 @@ import EditFrequency from "@/components/newsletter/edit-frequency";
 import { useGetRecipients } from "@/lib/hooks";
 import ReviewersForm from "@/components/newsletter/reviewers-form";
 import type { Reviewer } from "@/types";
+import BlacklistedDomainsForm from "@/components/newsletter/blacklisted-sites";
 
 const ProtectedIndex = withProtectedRoute(Index);
 export const Route = createFileRoute("/")({
@@ -61,10 +62,33 @@ function Index() {
 		},
 	});
 
-	if (recipientsLoading || reviewersLoading) return <Loading />;
-	if (recipientsError || reviewersError)
-		return <ErrorComponent error={recipientsError || reviewersError} />;
-	if (!recipients || !reviewers)
+	const {
+		data: domains,
+		isLoading: domainsLoading,
+		error: domainsError,
+	} = useQuery<string[]>({
+		queryKey: ["blacklisted-domains"],
+		queryFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains`,
+			);
+
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+
+			return await res.json()
+		},
+	});
+
+	if (recipientsLoading || reviewersLoading || domainsLoading)
+		return <Loading />;
+	if (recipientsError || reviewersError || domainsError)
+		return (
+			<ErrorComponent error={recipientsError || reviewersError || domainsError} />
+		);
+	if (!recipients || !reviewers || !domains)
 		return <ErrorComponent error="No data available" />;
 
 	return (
@@ -72,6 +96,7 @@ function Index() {
 			<RecipientsForm recipientEmails={recipients} />
 			<EditFrequency />
 			<ReviewersForm reviewerEmails={reviewers} />
+			<BlacklistedDomainsForm blacklistedDomains={domains} />
 		</>
 	);
 }

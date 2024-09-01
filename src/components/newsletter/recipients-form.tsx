@@ -109,7 +109,6 @@ export function CSVUpload(props: RecipientsFormInputProps) {
 		},
 		onSuccess: (addedEmails) => {
 			queryClient.invalidateQueries({ queryKey: ["recipients"] });
-			console.log(props.newsletterId);
 			if (props.newsletterId) {
 				queryClient.invalidateQueries({
 					queryKey: ["newsletter", props.newsletterId],

@@ -35,22 +35,27 @@ import {
 import { Card } from "../ui/card";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 
-const reviewersFormSchema = z.object({
-	reviewers: z.array(z.string()),
-	"new-reviewer": z.string(),
+const blacklistedDomainsFormSchema = z.object({
+	domains: z.array(z.string()),
+	"new-domain": z.string(),
 });
 
-export type ReviewersFormSchema = z.infer<typeof reviewersFormSchema>;
+export type BlacklistedDomainsFormSchema = z.infer<
+	typeof blacklistedDomainsFormSchema
+>;
 
-export default function ReviewersForm(props: {
-	reviewerEmails: string[];
+const domainSchema = z.string().url("Invalid url");
+
+// TODO: wording
+export default function BlacklistedDomainsForm(props: {
+	blacklistedDomains: string[];
 	newsletterId?: string;
 }) {
-	const form = useForm<z.infer<typeof reviewersFormSchema>>({
-		resolver: zodResolver(reviewersFormSchema),
+	const form = useForm<z.infer<typeof blacklistedDomainsFormSchema>>({
+		resolver: zodResolver(blacklistedDomainsFormSchema),
 		defaultValues: {
-			reviewers: props.reviewerEmails,
-			"new-reviewer": "",
+			domains: props.blacklistedDomains,
+			"new-domain": "",
 		},
 	});
 
@@ -59,20 +64,19 @@ export default function ReviewersForm(props: {
 			<Form {...form}>
 				<form className="space-y-8 container px-0 mx-auto">
 					<div className="space-y-6">
-						<h2 className="text-2xl font-bold">Newsletter Reviewers</h2>
+						<h2 className="text-2xl font-bold">Blacklisted News Sources</h2>
 						<FormDescription>
-							Add email addresses of reviewers who will be sent the newsletter to
-							confirm its quality. You can add multiple email addresses by separating
-							them with a comma.
+							These news sources will be ommited from the newsletter. You can add
+							multiple news sources by separating them with a comma.
 						</FormDescription>
 					</div>
 					<div className="space-y-4">
 						<div className="flex justify-end items-center space-x-2">
 							<CSVUpload form={form} newsletterId={props.newsletterId} />
-							<RemoveAllReviewers form={form} newsletterId={props.newsletterId} />
+							<RemoveAllBlacklistedDomains form={form} newsletterId={props.newsletterId} />
 						</div>
 						<NewReviewerInput form={form} newsletterId={props.newsletterId} />
-						<ReviewersInput form={form} newsletterId={props.newsletterId} />
+						<BlacklistedDomainsInput form={form} newsletterId={props.newsletterId} />
 					</div>
 				</form>
 			</Form>
@@ -80,23 +84,23 @@ export default function ReviewersForm(props: {
 	);
 }
 
-interface ReviewersFormInputProps {
-	form: UseFormReturn<ReviewersFormSchema>;
+interface BlacklistedDomainsFormInputProps {
+	form: UseFormReturn<BlacklistedDomainsFormSchema>;
 	newsletterId?: string;
 }
 
-export function CSVUpload(props: ReviewersFormInputProps) {
+export function CSVUpload(props: BlacklistedDomainsFormInputProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const queryClient = useQueryClient();
 	const authenticatedFetch = useAuthenticatedFetch();
 
-	const addReviewersMutation = useMutation<string[], APIError, string[]>({
-		mutationFn: async (emails: string[]) => {
+	const addBlacklistedDomainsMutation = useMutation<string[], APIError, string[]>({
+		mutationFn: async (domains: string[]) => {
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_API_URL}/api/reviewers/bulk`,
+				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains/bulk`,
 				{
 					method: "POST",
-					body: JSON.stringify({ emails }),
+					body: JSON.stringify({ domains }),
 					headers: { "Content-Type": "application/json" },
 				},
 			);
@@ -107,34 +111,36 @@ export function CSVUpload(props: ReviewersFormInputProps) {
 			}
 			return await res.json();
 		},
-		onSuccess: (addedEmails) => {
-			queryClient.invalidateQueries({ queryKey: ["reviewers"] });
+		onSuccess: (addedDomains) => {
+			queryClient.invalidateQueries({ queryKey: ["blacklisted-domains"] });
 			if (props.newsletterId) {
 				queryClient.invalidateQueries({
 					queryKey: ["newsletter", props.newsletterId],
 				});
 			}
-			const currentReviewers = props.form.getValues().reviewers;
-			const newReviewers = [...new Set([...currentReviewers, ...addedEmails])];
-			props.form.setValue("reviewers", newReviewers);
-			toast.success(`Added ${addedEmails.length} new reviewer(s)`);
+			const currentBlacklistedDomains = props.form.getValues().domains;
+			const newBlacklistedDomains = [...new Set([...currentBlacklistedDomains, ...addedDomains])];
+			props.form.setValue("domains", newBlacklistedDomains);
+			toast.success(`Added ${addedDomains.length} new domain(s)`);
 		},
 		onError: (error) => {
 			console.error(error);
-			toast.error("Failed to add reviewers. Please try again.");
+			toast.error("Failed to add blacklisted domains. Please try again.");
 		},
 	});
 
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		console.log(event.target);
 		const file = event.target.files?.[0];
 		if (file) {
 			Papa.parse(file, {
 				complete: (results: Papa.ParseResult<string[]>) => {
-					const emails = results.data
+					console.log(results);
+					const domains = results.data
 						.flat()
-						.filter((email: string) => email.includes("@"));
+						.filter((domain: string) => domainSchema.safeParse(domain).success);
 
-					addReviewersMutation.mutate(emails);
+					addBlacklistedDomainsMutation.mutate(domains);
 				},
 				error: (error) => {
 					console.error("Error parsing CSV:", error);
@@ -163,22 +169,22 @@ export function CSVUpload(props: ReviewersFormInputProps) {
 				variant="secondary"
 				className="text-xs"
 				onClick={handleButtonClick}
-				disabled={addReviewersMutation.isPending}
+				disabled={addBlacklistedDomainsMutation.isPending}
 			>
-				{addReviewersMutation.isPending ? "Uploading..." : "Upload CSV"}
+				{addBlacklistedDomainsMutation.isPending ? "Uploading..." : "Upload CSV"}
 			</Button>
 		</div>
 	);
 }
 
-function RemoveAllReviewers(props: ReviewersFormInputProps) {
+function RemoveAllBlacklistedDomains(props: BlacklistedDomainsFormInputProps) {
 	const queryClient = useQueryClient();
 	const authenticatedFetch = useAuthenticatedFetch();
 
 	const mutation = useMutation({
 		mutationFn: async () => {
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_API_URL}/api/reviewers/all`,
+				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains/all`,
 				{
 					method: "DELETE",
 				},
@@ -192,18 +198,18 @@ function RemoveAllReviewers(props: ReviewersFormInputProps) {
 			return await res.json();
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["reviewers"] });
+			queryClient.invalidateQueries({ queryKey: ["blacklisted-domains"] });
 			if (props.newsletterId) {
 				queryClient.invalidateQueries({
 					queryKey: ["newsletter", props.newsletterId],
 				});
 			}
-			props.form.setValue("reviewers", []);
-			toast.success("Removed all reviewers");
+			props.form.setValue("domains", []);
+			toast.success("Removed all blacklisted-domains");
 		},
 		onError: (error) => {
 			console.error(error);
-			toast.error("Failed to remove email. Please try again.");
+			toast.error("Failed to remove domain. Please try again.");
 		},
 	});
 
@@ -219,16 +225,17 @@ function RemoveAllReviewers(props: ReviewersFormInputProps) {
 					className="text-xs"
 					disabled={mutation.isPending}
 				>
-					Remove All Reviewers
+					Remove All BlacklistedDomains
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>
-						Are you sure you want to remove all reviewers?
+						Are you sure you want to remove all blacklisted domains?
 					</AlertDialogTitle>
 					<AlertDialogDescription>
-						Please confirm that you want to remove all reviewers from the newsletter.
+						Please confirm that you want to remove all blacklisted domains from the
+						newsletter.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
@@ -240,7 +247,7 @@ function RemoveAllReviewers(props: ReviewersFormInputProps) {
 	);
 }
 
-function ReviewersInput(props: ReviewersFormInputProps) {
+function BlacklistedDomainsInput(props: BlacklistedDomainsFormInputProps) {
 	const queryClient = useQueryClient();
 
 	const [parent] = useAutoAnimate();
@@ -248,10 +255,10 @@ function ReviewersInput(props: ReviewersFormInputProps) {
 	const authenticatedFetch = useAuthenticatedFetch();
 
 	const { mutate: removeMutate } = useMutation<string[], APIError, string>({
-		mutationFn: async (email: string) => {
-			const escapedEmail = encodeURIComponent(email);
+		mutationFn: async (domain: string) => {
+			const escapedDomain = encodeURIComponent(domain);
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_API_URL}/api/reviewers/${escapedEmail}`,
+				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains/${escapedDomain}`,
 				{
 					method: "DELETE",
 				},
@@ -264,7 +271,7 @@ function ReviewersInput(props: ReviewersFormInputProps) {
 			return await res.json();
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["reviewers"] });
+			queryClient.invalidateQueries({ queryKey: ["blacklisted-domains"] });
 			if (props.newsletterId) {
 				queryClient.invalidateQueries({
 					queryKey: ["newsletter", props.newsletterId],
@@ -273,35 +280,35 @@ function ReviewersInput(props: ReviewersFormInputProps) {
 		},
 		onError: (error) => {
 			console.error(error);
-			toast.error("Failed to remove email. Please try again.");
+			toast.error("Failed to remove domain. Please try again.");
 		},
 	});
 
-	const handleRemoveReviewer = (email: string) => {
+	const handleRemoveReviewer = (domain: string) => {
 		props.form.setValue(
-			"reviewers",
-			props.form.getValues().reviewers.filter((r) => r !== email),
+			"domains",
+			props.form.getValues().domains.filter((r) => r !== domain),
 		);
 
-		removeMutate(email);
+		removeMutate(domain);
 	};
 
 	return (
 		<FormField
 			control={props.form.control}
-			name="reviewers"
+			name="domains"
 			render={({ field }) => {
 				return (
 					<FormItem>
-						<FormLabel className="sr-only">Newsletter Reviewers</FormLabel>
+						<FormLabel className="sr-only">Newsletter BlacklistedDomains</FormLabel>
 						<FormControl>
 							<div className="flex items-center flex-wrap gap-1" ref={parent}>
-								{field.value.map((email) => (
-									<Badge key={email} className="hover:bg-primary">
-										{email}
+								{field.value.map((domain) => (
+									<Badge key={domain} className="hover:bg-primary">
+										{domain}
 										<Button
 											type="button"
-											onClick={() => handleRemoveReviewer(email)}
+											onClick={() => handleRemoveReviewer(domain)}
 											className="ml-1 -mr-1 p-1 rounded-full h-5 hover:bg-accent/20 hover:text-primary-foreground"
 											variant="ghost"
 										>
@@ -318,35 +325,30 @@ function ReviewersInput(props: ReviewersFormInputProps) {
 	);
 }
 
-const emailSchema = z.string().email("Invalid email address");
-
-function NewReviewerInput(props: ReviewersFormInputProps) {
+function NewReviewerInput(props: BlacklistedDomainsFormInputProps) {
 	const queryClient = useQueryClient();
 	const authenticatedFetch = useAuthenticatedFetch();
 
 	const { mutate: addMutate } = useMutation<string[], APIError, string[]>({
-		mutationFn: async (emails: string[]) => {
-			const results = await Promise.all(
-				emails.map(async (email) => {
-					const escapedEmail = encodeURIComponent(email.trim());
-					const res = await authenticatedFetch(
-						`${import.meta.env.VITE_API_URL}/api/reviewers/${escapedEmail}`,
-						{
-							method: "POST",
-						},
-					);
-
-					if (!res.ok) {
-						const errorData = await res.json().catch(() => null);
-						throw APIError.fromResponse(res, errorData);
-					}
-					return await res.json();
-				}),
+		mutationFn: async (domains: string[]) => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains/bulk`,
+				{
+					method: "POST",
+					body: JSON.stringify({ domains }),
+					headers: { "Content-Type": "application/json" },
+				},
 			);
-			return results;
+
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["reviewers"] });
+			queryClient.invalidateQueries({ queryKey: ["blacklisted-domains"] });
 			if (props.newsletterId) {
 				queryClient.invalidateQueries({
 					queryKey: ["newsletter", props.newsletterId],
@@ -355,7 +357,7 @@ function NewReviewerInput(props: ReviewersFormInputProps) {
 		},
 		onError: (error) => {
 			console.error(error);
-			toast.error("Failed to add email. Please try again.");
+			toast.error("Failed to add domain. Please try again.");
 		},
 	});
 
@@ -367,46 +369,48 @@ function NewReviewerInput(props: ReviewersFormInputProps) {
 		e.preventDefault();
 
 		const values = props.form.getValues();
-		const newReviewerInput = values["new-reviewer"];
-		const existingReviewers = values.reviewers;
+		const newReviewerInput = values["new-domain"];
+		const existingBlacklistedDomains = values.domains;
 
 		if (!newReviewerInput) return false;
 
-		const newEmails = newReviewerInput.split(",").map((email) => email.trim());
-		const validNewEmails = newEmails.filter((email) => {
-			const validationResult = emailSchema.safeParse(email);
+		const newDomains = newReviewerInput.split(",").map((domain) => domain.trim());
+		const validNewDomains = newDomains.filter((domain) => {
+			const validationResult = domainSchema.safeParse(domain);
 			if (!validationResult.success) {
-				toast.error(`Invalid email: ${email}`);
+				toast.error(`Invalid domain: ${domain}`);
 				return false;
 			}
-			return !existingReviewers.includes(email);
+			return !existingBlacklistedDomains.includes(domain);
 		});
 
-		if (validNewEmails.length === 0) {
+		if (validNewDomains.length === 0) {
 			return false;
 		}
 
-		addMutate(validNewEmails);
+		console.log(validNewDomains);
 
-		props.form.setValue("reviewers", [...existingReviewers, ...validNewEmails]);
-		props.form.setValue("new-reviewer", "");
+		addMutate(validNewDomains);
+
+		props.form.setValue("domains", [...existingBlacklistedDomains, ...validNewDomains]);
+		props.form.setValue("new-domain", "");
 	};
 
 	return (
 		<FormField
 			control={props.form.control}
-			name="new-reviewer"
+			name="new-domain"
 			render={({ field }) => {
 				return (
 					<FormItem>
-						<FormLabel className="sr-only">New Reviewer</FormLabel>
+						<FormLabel className="sr-only">New Domain</FormLabel>
 						<FormControl>
 							<div className="flex items-center">
 								<Input
-									type="email"
+									type="url"
 									value={field.value}
 									onChange={field.onChange}
-									placeholder="Enter email address"
+									placeholder="Enter domain"
 									className="flex-grow"
 									onKeyDown={(e) => {
 										if (e.key === "Enter") handleClickAdd(e);
