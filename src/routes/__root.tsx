@@ -11,7 +11,7 @@ export const Route = createRootRoute({
 function RootComponent() {
 	const router = useRouter();
 
-	const pagesWithoutLayout = ["/login", "/reset-password", "/update-password"];
+	const pagesWithoutLayout = ["/login", "/reset-password", "/update-password", "/subscribe", "/unsubscribe"];
 
 	const isAuthPage = pagesWithoutLayout.includes(router.state.location.pathname);
 

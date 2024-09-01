@@ -14,6 +14,8 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as UpdatePasswordImport } from './routes/update-password'
+import { Route as UnsubscribeImport } from './routes/unsubscribe'
+import { Route as SubscribeImport } from './routes/subscribe'
 import { Route as ResetPasswordImport } from './routes/reset-password'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
@@ -46,6 +48,16 @@ const ExampleLazyRoute = ExampleLazyImport.update({
 
 const UpdatePasswordRoute = UpdatePasswordImport.update({
   path: '/update-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const UnsubscribeRoute = UnsubscribeImport.update({
+  path: '/unsubscribe',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SubscribeRoute = SubscribeImport.update({
+  path: '/subscribe',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -97,6 +109,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordImport
       parentRoute: typeof rootRoute
     }
+    '/subscribe': {
+      id: '/subscribe'
+      path: '/subscribe'
+      fullPath: '/subscribe'
+      preLoaderRoute: typeof SubscribeImport
+      parentRoute: typeof rootRoute
+    }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeImport
+      parentRoute: typeof rootRoute
+    }
     '/update-password': {
       id: '/update-password'
       path: '/update-password'
@@ -141,6 +167,8 @@ export const routeTree = rootRoute.addChildren({
   IndexRoute,
   LoginRoute,
   ResetPasswordRoute,
+  SubscribeRoute,
+  UnsubscribeRoute,
   UpdatePasswordRoute,
   ExampleLazyRoute,
   GenerateLazyRoute,
@@ -159,6 +187,8 @@ export const routeTree = rootRoute.addChildren({
         "/",
         "/login",
         "/reset-password",
+        "/subscribe",
+        "/unsubscribe",
         "/update-password",
         "/example",
         "/generate",
@@ -174,6 +204,12 @@ export const routeTree = rootRoute.addChildren({
     },
     "/reset-password": {
       "filePath": "reset-password.tsx"
+    },
+    "/subscribe": {
+      "filePath": "subscribe.tsx"
+    },
+    "/unsubscribe": {
+      "filePath": "unsubscribe.tsx"
     },
     "/update-password": {
       "filePath": "update-password.tsx"

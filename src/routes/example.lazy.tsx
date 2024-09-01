@@ -25,7 +25,7 @@ function SecretTest() {
 		queryKey: ["newsletters"],
 		queryFn: async () => {
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_API_URL}/api/newsletters`,
+				`${import.meta.env.VITE_API_URL}/api/newsletters/unsent`,
 			);
 
 			if (!res.ok) {
