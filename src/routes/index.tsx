@@ -70,7 +70,7 @@ function Index() {
 		queryKey: ["blacklisted-domains"],
 		queryFn: async () => {
 			const res = await authenticatedFetch(
-				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains`,
+				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains/external`,
 			);
 
 			if (!res.ok) {
