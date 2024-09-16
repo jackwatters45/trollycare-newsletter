@@ -225,7 +225,7 @@ function RemoveAllBlacklistedDomains(props: BlacklistedDomainsFormInputProps) {
 					className="text-xs"
 					disabled={mutation.isPending}
 				>
-					Remove All BlacklistedDomains
+					Remove All Blacklisted Domains
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
@@ -300,7 +300,7 @@ function BlacklistedDomainsInput(props: BlacklistedDomainsFormInputProps) {
 			render={({ field }) => {
 				return (
 					<FormItem>
-						<FormLabel className="sr-only">Newsletter BlacklistedDomains</FormLabel>
+						<FormLabel className="sr-only">Newsletter Blacklisted Domains</FormLabel>
 						<FormControl>
 							<div className="flex items-center flex-wrap gap-1" ref={parent}>
 								{field.value.map((domain) => (

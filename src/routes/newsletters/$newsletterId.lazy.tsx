@@ -19,6 +19,7 @@ import RecipientsDisplay from "@/components/newsletter/recipients-display";
 import { useMemo } from "react";
 import { useAuthenticatedFetch } from "@/lib/auth";
 import { useGetRecipients } from "@/lib/hooks";
+import BlacklistedDomainsForm from "@/components/newsletter/blacklisted-sites";
 
 const ProtectedNewsletter = withProtectedRoute(App);
 export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
@@ -32,7 +33,11 @@ function App() {
 
 	const authenticatedFetch = useAuthenticatedFetch();
 
-	const { data, error, isLoading } = useQuery<PopulatedNewsletter, APIError>({
+	const {
+		data: newsletter,
+		error: newsletterError,
+		isLoading: newsletterLoading,
+	} = useQuery<PopulatedNewsletter, APIError>({
 		queryKey: ["newsletter", newsletterId],
 		queryFn: async () => {
 			const res = await authenticatedFetch(
@@ -48,24 +53,55 @@ function App() {
 		},
 	});
 
-	if (isLoading) return <Loading />;
-	if (error) return <ErrorComponent error={error} />;
-	if (!data) return <ErrorComponent error="No data available" />;
+	const {
+		data: blacklistedDomains,
+		isLoading: blacklistedDomainsLoading,
+		error: blacklistedDomainsError,
+	} = useQuery<string[]>({
+		queryKey: ["blacklisted-domains"],
+		queryFn: async () => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains/external`,
+			);
 
-	switch (data.status) {
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+
+			return await res.json();
+		},
+	});
+
+	if (newsletterLoading || blacklistedDomainsLoading) return <Loading />;
+	if (newsletterError || blacklistedDomainsError)
+		return <ErrorComponent error={newsletterError || blacklistedDomainsError} />;
+	if (!newsletter || !blacklistedDomains)
+		return <ErrorComponent error="No data available" />;
+
+	switch (newsletter.status) {
 		case "DRAFT":
-			return <DraftNewsletter newsletterId={newsletterId} {...data} />;
+			return (
+				<DraftNewsletter
+					newsletterId={newsletterId}
+					blacklistedDomains={blacklistedDomains}
+					{...newsletter}
+				/>
+			);
 		case "FAILED":
-			return <FailedNewsletter newsletterId={newsletterId} {...data} />;
+			return <FailedNewsletter newsletterId={newsletterId} {...newsletter} />;
 		case "SENT":
-			return <SentNewsletter {...data} />;
+			return <SentNewsletter {...newsletter} />;
 		default:
 			return <ErrorComponent error="Unknown newsletter status" />;
 	}
 }
 
 function DraftNewsletter(
-	props: PopulatedNewsletter & { newsletterId: string },
+	props: PopulatedNewsletter & {
+		newsletterId: string;
+		blacklistedDomains: string[];
+	},
 ) {
 	const recipientEmails = useMemo(
 		() => props.recipients.map((r) => r.email),
@@ -94,7 +130,7 @@ function DraftNewsletter(
 				<TabsList>
 					<TabsTrigger value="edit">Edit</TabsTrigger>
 					<TabsTrigger value="preview">Preview</TabsTrigger>
-					<TabsTrigger value="recipients">Recipients</TabsTrigger>
+					<TabsTrigger value="settings">Settings</TabsTrigger>
 				</TabsList>
 				<TabsContent value="edit" className="space-y-8">
 					<EditNewsletter {...props} />
@@ -109,13 +145,12 @@ function DraftNewsletter(
 						/>
 					</div>
 				</TabsContent>
-				<TabsContent value="recipients" className="space-y-8">
-					<div className="pt-4 mt-4 pb-6">
-						<RecipientsForm
-							recipientEmails={recipientEmails}
-							newsletterId={props.newsletterId}
-						/>
-					</div>
+				<TabsContent value="settings" className="pt-4 mt-4 pb-6  space-y-8">
+					<RecipientsForm
+						recipientEmails={recipientEmails}
+						newsletterId={props.newsletterId}
+					/>
+					<BlacklistedDomainsForm blacklistedDomains={props.blacklistedDomains} />
 				</TabsContent>
 			</Tabs>
 		</div>
@@ -123,7 +158,9 @@ function DraftNewsletter(
 }
 
 function FailedNewsletter(
-	props: PopulatedNewsletter & { newsletterId: string },
+	props: PopulatedNewsletter & {
+		newsletterId: string;
+	},
 ) {
 	const queryClient = useQueryClient();
 
@@ -220,7 +257,7 @@ function SentNewsletter(props: PopulatedNewsletter) {
 			<Tabs defaultValue="preview" className="space-y-4">
 				<TabsList>
 					<TabsTrigger value="preview">Preview</TabsTrigger>
-					<TabsTrigger value="recipients">Recipients</TabsTrigger>
+					<TabsTrigger value="settings">settings</TabsTrigger>
 				</TabsList>
 				<TabsContent value="preview" className="space-y-8">
 					<div className="py-4 mt-4 border border-slate-300 rounded-lg shadow-md">
@@ -232,9 +269,9 @@ function SentNewsletter(props: PopulatedNewsletter) {
 						/>
 					</div>
 				</TabsContent>
-				<TabsContent value="recipients" className="space-y-8">
+				<TabsContent value="settings" className="space-y-8">
 					<div className="p-4 mt-4 border border-slate-300 rounded-lg shadow-md space-y-4">
-						<h3>Recipients</h3>
+						<h3>Settings</h3>
 						<RecipientsDisplay recipientEmails={recipientEmails} />
 					</div>
 				</TabsContent>
