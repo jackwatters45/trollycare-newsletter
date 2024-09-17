@@ -46,7 +46,6 @@ export type BlacklistedDomainsFormSchema = z.infer<
 
 const domainSchema = z.string().url("Invalid url");
 
-// TODO: wording
 export default function BlacklistedDomainsForm(props: {
 	blacklistedDomains: string[];
 	newsletterId?: string;
@@ -66,8 +65,7 @@ export default function BlacklistedDomainsForm(props: {
 					<div className="space-y-6">
 						<h2 className="text-2xl font-bold">Blacklisted News Sources</h2>
 						<FormDescription>
-							These news sources will be ommited from the newsletter. You can add
-							multiple news sources by separating them with a comma.
+							These sources will be permanently omitted from the newsletter. You can add multiple sources by separating them with a comma.
 						</FormDescription>
 					</div>
 					<div className="space-y-4">
@@ -121,11 +119,11 @@ export function CSVUpload(props: BlacklistedDomainsFormInputProps) {
 			const currentBlacklistedDomains = props.form.getValues().domains;
 			const newBlacklistedDomains = [...new Set([...currentBlacklistedDomains, ...addedDomains])];
 			props.form.setValue("domains", newBlacklistedDomains);
-			toast.success(`Added ${addedDomains.length} new domain(s)`);
+			toast.success(`Added ${addedDomains.length} new domain(s) to blacklist`);
 		},
 		onError: (error) => {
 			console.error(error);
-			toast.error("Failed to add blacklisted domains. Please try again.");
+			toast.error("Failed to add domains to blacklist. Please try again.");
 		},
 	});
 
@@ -205,11 +203,11 @@ function RemoveAllBlacklistedDomains(props: BlacklistedDomainsFormInputProps) {
 				});
 			}
 			props.form.setValue("domains", []);
-			toast.success("Removed all blacklisted-domains");
+			toast.success("Removed all domains from blacklist");
 		},
 		onError: (error) => {
 			console.error(error);
-			toast.error("Failed to remove domain. Please try again.");
+			toast.error("Failed to remove domains from blacklist. Please try again.");
 		},
 	});
 
@@ -225,7 +223,7 @@ function RemoveAllBlacklistedDomains(props: BlacklistedDomainsFormInputProps) {
 					className="text-xs"
 					disabled={mutation.isPending}
 				>
-					Remove All Blacklisted Domains
+					Remove All Domains From Blacklist
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
@@ -234,8 +232,7 @@ function RemoveAllBlacklistedDomains(props: BlacklistedDomainsFormInputProps) {
 						Are you sure you want to remove all blacklisted domains?
 					</AlertDialogTitle>
 					<AlertDialogDescription>
-						Please confirm that you want to remove all blacklisted domains from the
-						newsletter.
+						Please confirm that you want to remove all blacklisted domains from the newsletter.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
