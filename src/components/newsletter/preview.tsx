@@ -1,5 +1,5 @@
 import { useAuthenticatedFetch } from "@/lib/auth";
-import { COMPANY_NAME } from "@/lib/constants";
+import { CLIENT_URL, COMPANY_NAME } from "@/lib/constants";
 import { APIError } from "@/lib/error";
 import { getPastWeekDate, weeksToMilliseconds } from "@/lib/utils";
 import type { Ad, Category } from "@/types";
@@ -46,15 +46,18 @@ export function NewsletterPreview(props: {
 	if (!dates) return <ErrorComponent error="Could not load dates" />;
 
 	return (
-		<div className="bg-white text-slate-900 font-sans max-w-[600px] mx-auto p-5 leading-relaxed">
-			<div className="border-b-2 border-slate-200 pb-3">
+		<div
+			id="newsletter-preview"
+			className="mx-auto max-w-[600px] bg-white p-5 font-sans text-slate-900 leading-relaxed"
+		>
+			<div className="border-slate-200 border-b-2 pb-3">
 				<table className="w-full">
 					<tbody>
 						<tr>
 							<td className="text-left align-middle">
-								<h1 className="text-lg font-bold text-black">
+								<h1 className="font-bold text-black text-lg">
 									Homecare News
-									<span className="font-normal text-sm text-slate-500 ml-1">
+									<span className="ml-1 font-normal text-slate-500 text-sm">
 										by{" "}
 										<a
 											href="https://www.trollycare.com/"
@@ -67,8 +70,14 @@ export function NewsletterPreview(props: {
 							</td>
 							<td className="text-right align-middle">
 								<a
+									href={`${CLIENT_URL}/subscribe`}
+									className="text-slate-500 text-sm no-underline hover:underline"
+								>
+									Subscribe
+								</a>
+								<a
 									href="https://www.trollycare.com/"
-									className="text-sm text-slate-500 no-underline hover:underline"
+									className="text-slate-500 text-sm no-underline hover:underline"
 								>
 									Contact Us
 								</a>
@@ -81,19 +90,19 @@ export function NewsletterPreview(props: {
 			<main>
 				<div className="py-5">
 					<div className="pb-5">
-						<div className="text-slate-500 font-semibold mb-6 text-sm">
+						<div className="mb-6 font-semibold text-slate-500 text-sm">
 							{dates.start} to {dates.end}
 						</div>
-						<p className="italic text-sm pb-5 text-slate-500">{props.summary}</p>
+						<p className="pb-5 text-slate-500 text-sm italic">{props.summary}</p>
 					</div>
 					<div>
 						{props.categories.map((category) => (
 							<div key={category.name} className="pb-12">
-								<h2 className="text-xl mb-4">{category.name}</h2>
+								<h2 className="mb-4 text-xl">{category.name}</h2>
 								{category.articles.map((article) => (
 									<article
 										key={article.id}
-										className="py-6 border-b border-slate-200 last:border-b-0"
+										className="border-slate-200 border-b py-6 last:border-b-0"
 									>
 										<h3 className="text-lg text-sky-600">
 											<a
@@ -111,7 +120,7 @@ export function NewsletterPreview(props: {
 					</div>
 				</div>
 			</main>
-			<footer className="text-xs text-center">
+			<footer className="text-center text-xs">
 				<p className="pb-2.5 text-slate-500">
 					<b>
 						TrollyCare Insurance is a division of{" "}
@@ -129,6 +138,9 @@ export function NewsletterPreview(props: {
 				<p className="pb-2.5 text-slate-500">
 					© {dates.year} {COMPANY_NAME}. All rights reserved.
 				</p>
+				<p>
+					{/* biome-ignore lint/a11y/useValidAnchor: <explanation> */}
+					To unsubscribe from this newsletter, <a href="#">click here</a>.</p>
 			</footer>
 		</div>
 	);
