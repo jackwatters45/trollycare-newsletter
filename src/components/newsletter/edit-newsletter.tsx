@@ -12,6 +12,7 @@ import ErrorComponent from "../error";
 import Loading from "../loading";
 import { Link } from "@tanstack/react-router";
 import { Button } from "../ui/button";
+import GetHTML from "./get-html";
 
 export default function EditNewsletter(
 	props: PopulatedNewsletter & { newsletterId: string },
@@ -62,19 +63,22 @@ export default function EditNewsletter(
 				</DragOverlay>
 			</DndContext>
 			<AddArticle newsletterId={props.newsletterId} />
-			<div className="w-full flex justify-end pb-8">
-				{props.status === "DRAFT" && recipientsQuery.data.length > 0 && (
-					<div className="w-full flex justify-end">
-						<ConfirmSendAlert newsletterId={props.newsletterId} />
-					</div>
-				)}
-				{recipientsQuery.data.length === 0 && (
-					<Link to="/">
-						<Button variant="destructive" className="w-full justify-start">
-							No recipients found. Please add recipients to the newsletter.
-						</Button>
-					</Link>
-				)}
+			<div className="flex w-full justify-end pb-8">
+				<div className="flex gap-4">
+					<GetHTML {...props} />
+					{props.status === "DRAFT" && recipientsQuery.data.length > 0 && (
+						<div className="flex w-full justify-end">
+							<ConfirmSendAlert newsletterId={props.newsletterId} />
+						</div>
+					)}
+					{recipientsQuery.data.length === 0 && (
+						<Link to="/">
+							<Button variant="destructive" className="w-full justify-start">
+								No recipients found. Please add recipients to the newsletter.
+							</Button>
+						</Link>
+					)}
+				</div>
 			</div>
 		</>
 	);

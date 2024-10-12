@@ -15,16 +15,15 @@ export class APIError extends Error {
 		this.statusText = statusText;
 		this.data = data;
 
-		// This line is necessary for proper prototype chain setup in TypeScript
 		Object.setPrototypeOf(this, APIError.prototype);
 	}
 
 	static fromResponse(response: Response, data?: unknown): APIError {
-		return new APIError(
-			"API request failed",
-			response.status,
-			response.statusText,
-			data,
-		);
+		const message =
+			typeof data === "object" && data !== null && "message" in data
+				? String(data.message)
+				: "API request failed";
+
+		return new APIError(message, response.status, response.statusText, data);
 	}
 }
