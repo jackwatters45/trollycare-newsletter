@@ -24,9 +24,12 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 const formSchema = z.object({
-	email: z.string().email({
-		message: "Please enter a valid email address.",
-	}),
+	email: z
+		.string()
+		.email({
+			message: "Please enter a valid email address.",
+		})
+		.transform((value) => value.toLowerCase()),
 });
 
 function ResetPassword() {

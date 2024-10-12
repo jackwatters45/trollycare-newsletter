@@ -23,9 +23,12 @@ export const Route = createFileRoute("/login")({
 });
 
 const formSchema = z.object({
-	email: z.string().email({
-		message: "Please enter a valid email address.",
-	}),
+	email: z
+		.string()
+		.email({
+			message: "Please enter a valid email address.",
+		})
+		.transform((value) => value.toLowerCase()),
 	password: z.string().min(6, {
 		message: "Password must be at least 6 characters.",
 	}),
