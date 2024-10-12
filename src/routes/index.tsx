@@ -6,7 +6,6 @@ import ErrorComponent from "@/components/error";
 import { withProtectedRoute } from "@/components/protected";
 import { useAuthenticatedFetch } from "@/lib/auth";
 import EditFrequency from "@/components/newsletter/edit-frequency";
-import { useGetRecipients } from "@/lib/hooks";
 import ReviewersForm from "@/components/newsletter/reviewers-form";
 import type { Reviewer } from "@/types";
 import BlacklistedDomainsForm from "@/components/newsletter/blacklisted-sites";
@@ -18,12 +17,6 @@ export const Route = createFileRoute("/")({
 
 function Index() {
 	const authenticatedFetch = useAuthenticatedFetch();
-
-	const {
-		data: recipients,
-		isLoading: recipientsLoading,
-		error: recipientsError,
-	} = useGetRecipients();
 
 	useQuery({
 		queryKey: ["newsletters", "frequency"],
@@ -81,13 +74,10 @@ function Index() {
 		},
 	});
 
-	if (recipientsLoading || reviewersLoading || domainsLoading)
-		return <Loading />;
-	if (recipientsError || reviewersError || domainsError)
-		return (
-			<ErrorComponent error={recipientsError || reviewersError || domainsError} />
-		);
-	if (!recipients || !reviewers || !domains)
+	if (reviewersLoading || domainsLoading) return <Loading />;
+	if (reviewersError || domainsError)
+		return <ErrorComponent error={reviewersError || domainsError} />;
+	if (!reviewers || !domains)
 		return <ErrorComponent error="No data available" />;
 
 	return (
