@@ -5,7 +5,6 @@ import Loading from "@/components/loading";
 import ErrorComponent from "@/components/error";
 import { withProtectedRoute } from "@/components/protected";
 import { useAuthenticatedFetch } from "@/lib/auth";
-import RecipientsForm from "@/components/newsletter/recipients-form";
 import EditFrequency from "@/components/newsletter/edit-frequency";
 import { useGetRecipients } from "@/lib/hooks";
 import ReviewersForm from "@/components/newsletter/reviewers-form";
@@ -78,7 +77,7 @@ function Index() {
 				throw APIError.fromResponse(res, errorData);
 			}
 
-			return await res.json()
+			return await res.json();
 		},
 	});
 
@@ -93,7 +92,6 @@ function Index() {
 
 	return (
 		<>
-			<RecipientsForm recipientEmails={recipients} />
 			<EditFrequency />
 			<ReviewersForm reviewerEmails={reviewers} />
 			<BlacklistedDomainsForm blacklistedDomains={domains} />

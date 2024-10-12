@@ -39,6 +39,16 @@ const NavItems = memo(
 					History
 				</Button>
 			</Link>
+			<Link to="/recipients">
+				<Button
+					variant="ghost"
+					type="button"
+					className="w-full justify-start text-foreground"
+					onClick={closeSheet}
+				>
+					Recipients
+				</Button>
+			</Link>
 			<Button
 				variant="ghost"
 				onClick={() => {
@@ -66,14 +76,14 @@ export default function Nav() {
 	}, []);
 
 	return (
-		<div className="border-b border-border bg-background shadow-sm fixed w-full z-50">
-			<nav className="flex items-center justify-between px-4 py-1  max-w-screen-lg mx-auto">
-				<Link to="/" className="text-lg font-bold hover:no-underline">
+		<div className="fixed z-50 w-full border-border border-b bg-background shadow-sm">
+			<nav className="mx-auto flex h-12 max-w-screen-lg items-center justify-between px-4 py-1">
+				<Link to="/" className="font-bold text-lg hover:no-underline">
 					{APP_NAME}
 				</Link>
 
 				{/* Desktop Navigation */}
-				<div className="hidden sm:flex items-center space-x-2">
+				<div className="hidden items-center space-x-2 md:flex">
 					{session ? (
 						<NavItems logout={handleLogout} closeSheet={closeSheet} />
 					) : (
@@ -87,13 +97,13 @@ export default function Nav() {
 
 				{/* Mobile Navigation */}
 				<Sheet open={isOpen} onOpenChange={setIsOpen}>
-					<SheetTrigger asChild className="sm:hidden">
+					<SheetTrigger asChild className="md:hidden">
 						<Button variant="ghost" size="icon">
 							<Menu className="h-5 w-5" />
 						</Button>
 					</SheetTrigger>
 					<SheetContent>
-						<div className="flex flex-col space-y-2 mt-4">
+						<div className="mt-4 flex flex-col space-y-2">
 							{session ? (
 								<NavItems logout={handleLogout} closeSheet={closeSheet} />
 							) : (

@@ -14,12 +14,10 @@ import { NewsletterPreview } from "@/components/newsletter/preview";
 import { withProtectedRoute } from "@/components/protected";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import RecipientsForm from "@/components/newsletter/recipients-form";
-import RecipientsDisplay from "@/components/newsletter/recipients-display";
-import { useMemo } from "react";
 import { useAuthenticatedFetch } from "@/lib/auth";
 import { useGetRecipients } from "@/lib/hooks";
 import BlacklistedDomainsForm from "@/components/newsletter/blacklisted-sites";
+import RecipientsTable from "@/components/newsletter/recipients-table";
 
 const ProtectedNewsletter = withProtectedRoute(App);
 export const Route = createLazyFileRoute("/newsletters/$newsletterId")({
@@ -89,7 +87,13 @@ function App() {
 				/>
 			);
 		case "FAILED":
-			return <FailedNewsletter newsletterId={newsletterId} {...newsletter} />;
+			return (
+				<FailedNewsletter
+					newsletterId={newsletterId}
+					blacklistedDomains={blacklistedDomains}
+					{...newsletter}
+				/>
+			);
 		case "SENT":
 			return <SentNewsletter {...newsletter} />;
 		default:
@@ -103,11 +107,6 @@ function DraftNewsletter(
 		blacklistedDomains: string[];
 	},
 ) {
-	const recipientEmails = useMemo(
-		() => props.recipients.map((r) => r.email),
-		[props.recipients],
-	);
-
 	return (
 		<div className="space-y-8">
 			<Card>
@@ -115,7 +114,7 @@ function DraftNewsletter(
 					<CardTitle>Instructions</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<ol className="list-decimal list-inside space-y-2">
+					<ol className="list-inside list-decimal space-y-2">
 						<li>Review Summary. Click the edit summary button to make changes.</li>
 						<li>Click the delete icon to remove the article from the newsletter.</li>
 						<li>
@@ -130,13 +129,16 @@ function DraftNewsletter(
 				<TabsList>
 					<TabsTrigger value="edit">Edit</TabsTrigger>
 					<TabsTrigger value="preview">Preview</TabsTrigger>
-					<TabsTrigger value="settings">Settings</TabsTrigger>
+					<TabsTrigger value="recipients">Recipients</TabsTrigger>
+					<TabsTrigger value="blacklisted-domains">
+						Add Blacklisted Domain
+					</TabsTrigger>
 				</TabsList>
 				<TabsContent value="edit" className="space-y-8">
 					<EditNewsletter {...props} />
 				</TabsContent>
 				<TabsContent value="preview" className="space-y-8">
-					<div className="py-4 mt-4 border border-slate-300 rounded-lg shadow-md">
+					<div className="mt-4 rounded-lg border border-slate-300 py-4 shadow-md">
 						<NewsletterPreview
 							sendDate={props.createdAt}
 							summary={props?.summary}
@@ -145,11 +147,13 @@ function DraftNewsletter(
 						/>
 					</div>
 				</TabsContent>
-				<TabsContent value="settings" className="pt-4 mt-4 pb-6  space-y-8">
-					<RecipientsForm
-						recipientEmails={recipientEmails}
-						newsletterId={props.newsletterId}
-					/>
+				<TabsContent value="recipients" className="mt-4 space-y-8 pt-4 pb-6">
+					<RecipientsTable recipients={props.recipients} />
+				</TabsContent>
+				<TabsContent
+					value="blacklisted-domains"
+					className="mt-4 space-y-8 pt-4 pb-6"
+				>
 					<BlacklistedDomainsForm blacklistedDomains={props.blacklistedDomains} />
 				</TabsContent>
 			</Tabs>
@@ -160,6 +164,7 @@ function DraftNewsletter(
 function FailedNewsletter(
 	props: PopulatedNewsletter & {
 		newsletterId: string;
+		blacklistedDomains: string[];
 	},
 ) {
 	const queryClient = useQueryClient();
@@ -199,39 +204,37 @@ function FailedNewsletter(
 	const onClick = () => mutate();
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Newsletter Send Failed</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p className="mb-4">
-					Unfortunately, there was an issue sending this newsletter. The newsletter
-					has been generated successfully, but we couldn't deliver it. You can try to
-					send it again using the button below.
-				</p>
-				{isError && (
-					<p className="text-red-500 mb-4">
-						Error: {error?.message || "An unexpected error occurred"}
+		<>
+			<Card>
+				<CardHeader>
+					<CardTitle>Newsletter Send Failed</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="mb-4">
+						Unfortunately, there was an issue sending this newsletter. The newsletter
+						has been generated successfully, but we couldn't deliver it. You can try
+						to send it again using the button below.
 					</p>
-				)}
-				<Button
-					onClick={onClick}
-					disabled={isPending}
-					className="flex items-center"
-				>
-					{isPending ? "Sending Newsletter..." : "Retry Send"}
-				</Button>
-			</CardContent>
-		</Card>
+					{isError && (
+						<p className="mb-4 text-red-500">
+							Error: {error?.message || "An unexpected error occurred"}
+						</p>
+					)}
+					<Button
+						onClick={onClick}
+						disabled={isPending}
+						className="flex items-center"
+					>
+						{isPending ? "Sending Newsletter..." : "Retry Send"}
+					</Button>
+				</CardContent>
+			</Card>
+			<DraftNewsletter {...props} />
+		</>
 	);
 }
 
 function SentNewsletter(props: PopulatedNewsletter) {
-	const recipientEmails = useMemo(
-		() => props.recipients.map((r) => r.email),
-		[props.recipients],
-	);
-
 	return (
 		<div className="space-y-8">
 			<Card>
@@ -257,10 +260,10 @@ function SentNewsletter(props: PopulatedNewsletter) {
 			<Tabs defaultValue="preview" className="space-y-4">
 				<TabsList>
 					<TabsTrigger value="preview">Preview</TabsTrigger>
-					<TabsTrigger value="settings">settings</TabsTrigger>
+					<TabsTrigger value="recipients">Recipients</TabsTrigger>
 				</TabsList>
 				<TabsContent value="preview" className="space-y-8">
-					<div className="py-4 mt-4 border border-slate-300 rounded-lg shadow-md">
+					<div className="mt-4 rounded-lg border border-slate-300 py-4 shadow-md">
 						<NewsletterPreview
 							sendDate={props.createdAt}
 							summary={props?.summary}
@@ -269,10 +272,9 @@ function SentNewsletter(props: PopulatedNewsletter) {
 						/>
 					</div>
 				</TabsContent>
-				<TabsContent value="settings" className="space-y-8">
-					<div className="p-4 mt-4 border border-slate-300 rounded-lg shadow-md space-y-4">
-						<h3>Settings</h3>
-						<RecipientsDisplay recipientEmails={recipientEmails} />
+				<TabsContent value="recipients" className="space-y-8">
+					<div className="mt-4 space-y-4 rounded-lg border border-slate-300 p-4 pt-8 shadow-md">
+						<RecipientsTable recipients={props.recipients} />
 					</div>
 				</TabsContent>
 			</Tabs>

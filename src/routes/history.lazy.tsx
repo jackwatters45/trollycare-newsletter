@@ -69,7 +69,7 @@ function HistoryTable(props: { newsletters: Newsletter[] }) {
 	return (
 		<div className="container mx-auto">
 			<h2 className="text-2xl font-bold">History</h2>
-			<DataTable columns={columns} data={props.newsletters}  />
+			<DataTable columns={columns} data={props.newsletters} />
 		</div>
 	);
 }
@@ -118,6 +118,16 @@ const columns: ColumnDef<Newsletter>[] = [
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
+						{row.original.mailChimpId ? (
+							<>
+								<DropdownMenuItem asChild>
+									<a href="https://us14.admin.mailchimp.com/audience/contact-profile?contact_id=0b92ba0f5e1eed6961d3a60eabe828e2&use_segment=N&page=1&pageSize=10&sort=timestamp_opt&asc=desc">
+										Open Campaign in MailChimp
+									</a>
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+							</>
+						) : null}
 						<DropdownMenuItem
 							onClick={() => {
 								navigator.clipboard.writeText(newsletter.id);
