@@ -25,7 +25,7 @@ export default function SortableArticle(props: {
 
 	return (
 		<div ref={setNodeRef} style={style} className="flex items-center">
-			<div className="flex-grow flex">
+			<div className="flex flex-grow">
 				<ArticleComponent
 					article={props.article}
 					newsletterId={props.newsletterId}

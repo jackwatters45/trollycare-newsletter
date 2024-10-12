@@ -61,17 +61,21 @@ export default function BlacklistedDomainsForm(props: {
 	return (
 		<Card className="p-6">
 			<Form {...form}>
-				<form className="space-y-8 container px-0 mx-auto">
+				<form className="container mx-auto space-y-8 px-0">
 					<div className="space-y-6">
-						<h2 className="text-2xl font-bold">Blacklisted News Sources</h2>
+						<h2 className="font-bold text-2xl">Blacklisted News Sources</h2>
 						<FormDescription>
-							These sources will be permanently omitted from the newsletter. You can add multiple sources by separating them with a comma.
+							These sources will be permanently omitted from the newsletter. You can
+							add multiple sources by separating them with a comma.
 						</FormDescription>
 					</div>
 					<div className="space-y-4">
-						<div className="flex justify-end items-center space-x-2">
+						<div className="flex items-center justify-end space-x-2">
 							<CSVUpload form={form} newsletterId={props.newsletterId} />
-							<RemoveAllBlacklistedDomains form={form} newsletterId={props.newsletterId} />
+							<RemoveAllBlacklistedDomains
+								form={form}
+								newsletterId={props.newsletterId}
+							/>
 						</div>
 						<NewReviewerInput form={form} newsletterId={props.newsletterId} />
 						<BlacklistedDomainsInput form={form} newsletterId={props.newsletterId} />
@@ -92,7 +96,11 @@ export function CSVUpload(props: BlacklistedDomainsFormInputProps) {
 	const queryClient = useQueryClient();
 	const authenticatedFetch = useAuthenticatedFetch();
 
-	const addBlacklistedDomainsMutation = useMutation<string[], APIError, string[]>({
+	const addBlacklistedDomainsMutation = useMutation<
+		string[],
+		APIError,
+		string[]
+	>({
 		mutationFn: async (domains: string[]) => {
 			const res = await authenticatedFetch(
 				`${import.meta.env.VITE_API_URL}/api/blacklisted-domains/bulk`,
@@ -117,7 +125,9 @@ export function CSVUpload(props: BlacklistedDomainsFormInputProps) {
 				});
 			}
 			const currentBlacklistedDomains = props.form.getValues().domains;
-			const newBlacklistedDomains = [...new Set([...currentBlacklistedDomains, ...addedDomains])];
+			const newBlacklistedDomains = [
+				...new Set([...currentBlacklistedDomains, ...addedDomains]),
+			];
 			props.form.setValue("domains", newBlacklistedDomains);
 			toast.success(`Added ${addedDomains.length} new domain(s) to blacklist`);
 		},
@@ -128,12 +138,10 @@ export function CSVUpload(props: BlacklistedDomainsFormInputProps) {
 	});
 
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		console.log(event.target);
 		const file = event.target.files?.[0];
 		if (file) {
 			Papa.parse(file, {
 				complete: (results: Papa.ParseResult<string[]>) => {
-					console.log(results);
 					const domains = results.data
 						.flat()
 						.filter((domain: string) => domainSchema.safeParse(domain).success);
@@ -190,7 +198,7 @@ function RemoveAllBlacklistedDomains(props: BlacklistedDomainsFormInputProps) {
 
 			if (!res.ok) {
 				const errorData = await res.json().catch(() => null);
-				throw new Error(errorData?.message);
+				throw APIError.fromResponse(res, errorData);
 			}
 
 			return await res.json();
@@ -232,7 +240,8 @@ function RemoveAllBlacklistedDomains(props: BlacklistedDomainsFormInputProps) {
 						Are you sure you want to remove all blacklisted domains?
 					</AlertDialogTitle>
 					<AlertDialogDescription>
-						Please confirm that you want to remove all blacklisted domains from the newsletter.
+						Please confirm that you want to remove all blacklisted domains from the
+						newsletter.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
@@ -265,6 +274,7 @@ function BlacklistedDomainsInput(props: BlacklistedDomainsFormInputProps) {
 				const errorData = await res.json().catch(() => null);
 				throw APIError.fromResponse(res, errorData);
 			}
+
 			return await res.json();
 		},
 		onSuccess: () => {
@@ -299,14 +309,14 @@ function BlacklistedDomainsInput(props: BlacklistedDomainsFormInputProps) {
 					<FormItem>
 						<FormLabel className="sr-only">Newsletter Blacklisted Domains</FormLabel>
 						<FormControl>
-							<div className="flex items-center flex-wrap gap-1" ref={parent}>
+							<div className="flex flex-wrap items-center gap-1" ref={parent}>
 								{field.value.map((domain) => (
 									<Badge key={domain} className="hover:bg-primary">
 										{domain}
 										<Button
 											type="button"
 											onClick={() => handleRemoveReviewer(domain)}
-											className="ml-1 -mr-1 p-1 rounded-full h-5 hover:bg-accent/20 hover:text-primary-foreground"
+											className="-mr-1 ml-1 h-5 rounded-full p-1 hover:bg-accent/20 hover:text-primary-foreground"
 											variant="ghost"
 										>
 											<X className={" h-3 w-3"} />
@@ -341,8 +351,8 @@ function NewReviewerInput(props: BlacklistedDomainsFormInputProps) {
 				const errorData = await res.json().catch(() => null);
 				throw APIError.fromResponse(res, errorData);
 			}
-			return await res.json();
 
+			return await res.json();
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["blacklisted-domains"] });
@@ -385,11 +395,12 @@ function NewReviewerInput(props: BlacklistedDomainsFormInputProps) {
 			return false;
 		}
 
-		console.log(validNewDomains);
-
 		addMutate(validNewDomains);
 
-		props.form.setValue("domains", [...existingBlacklistedDomains, ...validNewDomains]);
+		props.form.setValue("domains", [
+			...existingBlacklistedDomains,
+			...validNewDomains,
+		]);
 		props.form.setValue("new-domain", "");
 	};
 

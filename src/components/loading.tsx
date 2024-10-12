@@ -4,8 +4,8 @@ export default function Loading({ text = "Loading..." }: { text?: string }) {
 	return (
 		<div className="flex items-center justify-center py-16">
 			<div className="text-center">
-				<Loader2 className="h-8 w-8 animate-spin mx-auto" />
-				<p className="mt-2 text-lg font-semibold">{text}</p>
+				<Loader2 className="mx-auto h-8 w-8 animate-spin" />
+				<p className="mt-2 font-semibold text-lg">{text}</p>
 			</div>
 		</div>
 	);

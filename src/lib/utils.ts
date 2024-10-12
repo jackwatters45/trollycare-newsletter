@@ -19,8 +19,6 @@ export function getPastWeekDate(
 	end: string;
 	year: number;
 } {
-	console.log(endDate, frequency);
-
 	const pastWeek = new Date(endDate).getTime() - frequency;
 	const formattedPastWeek = new Date(pastWeek).toLocaleDateString("en-US", {
 		year: "numeric",

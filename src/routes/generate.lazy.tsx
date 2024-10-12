@@ -41,9 +41,9 @@ function GenerateNew() {
 	const handleGenerate = () => mutation.mutate();
 
 	return (
-		<div className="max-w-3xl mx-auto px-4">
-			<h1 className="text-3xl font-bold text-center mb-6">Newsletter Generator</h1>
-			<div className="bg-accent border-l-4 border-muted-foreground text-muted-foreground p-4 mb-6 rounded shadow-md">
+		<div className="mx-auto max-w-3xl px-4">
+			<h1 className="mb-6 text-center font-bold text-3xl">Newsletter Generator</h1>
+			<div className="mb-6 rounded border-muted-foreground border-l-4 bg-accent p-4 text-muted-foreground shadow-md">
 				<p className="font-bold">Manual Newsletter Generation</p>
 				<p className="mt-2">
 					This page allows you to create a new newsletter manually. While we have an
@@ -60,14 +60,14 @@ function GenerateNew() {
 			</div>
 			<Button
 				onClick={handleGenerate}
-				className="block mx-auto"
+				className="mx-auto block"
 				disabled={mutation.isPending}
 			>
 				Generate New Data
 			</Button>
 
 			{mutation.isPending && (
-				<div className="text-center text-sm text-muted-foreground mt-3">
+				<div className="mt-3 text-center text-muted-foreground text-sm">
 					Generation will take a few minutes...
 				</div>
 			)}

@@ -57,9 +57,9 @@ export default function ReviewersForm(props: {
 	return (
 		<Card className="p-6">
 			<Form {...form}>
-				<form className="space-y-8 container px-0 mx-auto">
+				<form className="container mx-auto space-y-8 px-0">
 					<div className="space-y-6">
-						<h2 className="text-2xl font-bold">Newsletter Reviewers</h2>
+						<h2 className="font-bold text-2xl">Newsletter Reviewers</h2>
 						<FormDescription>
 							Add email addresses of reviewers who will be sent the newsletter to
 							confirm its quality. You can add multiple email addresses by separating
@@ -67,7 +67,7 @@ export default function ReviewersForm(props: {
 						</FormDescription>
 					</div>
 					<div className="space-y-4">
-						<div className="flex justify-end items-center space-x-2">
+						<div className="flex items-center justify-end space-x-2">
 							<CSVUpload form={form} newsletterId={props.newsletterId} />
 							<RemoveAllReviewers form={form} newsletterId={props.newsletterId} />
 						</div>
@@ -186,7 +186,7 @@ function RemoveAllReviewers(props: ReviewersFormInputProps) {
 
 			if (!res.ok) {
 				const errorData = await res.json().catch(() => null);
-				throw new Error(errorData?.message);
+				throw APIError.fromResponse(res, errorData);
 			}
 
 			return await res.json();
@@ -261,6 +261,7 @@ function ReviewersInput(props: ReviewersFormInputProps) {
 				const errorData = await res.json().catch(() => null);
 				throw APIError.fromResponse(res, errorData);
 			}
+
 			return await res.json();
 		},
 		onSuccess: () => {
@@ -295,14 +296,14 @@ function ReviewersInput(props: ReviewersFormInputProps) {
 					<FormItem>
 						<FormLabel className="sr-only">Newsletter Reviewers</FormLabel>
 						<FormControl>
-							<div className="flex items-center flex-wrap gap-1" ref={parent}>
+							<div className="flex flex-wrap items-center gap-1" ref={parent}>
 								{field.value.map((email) => (
 									<Badge key={email} className="hover:bg-primary">
 										{email}
 										<Button
 											type="button"
 											onClick={() => handleRemoveReviewer(email)}
-											className="ml-1 -mr-1 p-1 rounded-full h-5 hover:bg-accent/20 hover:text-primary-foreground"
+											className="-mr-1 ml-1 h-5 rounded-full p-1 hover:bg-accent/20 hover:text-primary-foreground"
 											variant="ghost"
 										>
 											<X className={" h-3 w-3"} />
@@ -340,6 +341,7 @@ function NewReviewerInput(props: ReviewersFormInputProps) {
 						const errorData = await res.json().catch(() => null);
 						throw APIError.fromResponse(res, errorData);
 					}
+
 					return await res.json();
 				}),
 			);

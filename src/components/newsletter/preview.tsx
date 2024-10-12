@@ -68,7 +68,7 @@ export function NewsletterPreview(props: {
 									</span>
 								</h1>
 							</td>
-							<td className="text-right align-middle">
+							<td className="space-x-2 text-right align-middle">
 								<a
 									href={`${CLIENT_URL}/subscribe`}
 									className="text-slate-500 text-sm no-underline hover:underline"
@@ -138,9 +138,9 @@ export function NewsletterPreview(props: {
 				<p className="pb-2.5 text-slate-500">
 					© {dates.year} {COMPANY_NAME}. All rights reserved.
 				</p>
-				<p>
-					{/* biome-ignore lint/a11y/useValidAnchor: <explanation> */}
-					To unsubscribe from this newsletter, <a href="#">click here</a>.</p>
+				<p className="pb-2.5 text-slate-500">
+					To unsubscribe from this newsletter, <span className="link cursor-pointer font-bold">click here</span>.
+				</p>
 			</footer>
 		</div>
 	);

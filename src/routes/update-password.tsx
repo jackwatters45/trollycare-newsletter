@@ -102,10 +102,10 @@ function UpdatePassword() {
 	if (!isValidToken) return navigate({ to: "/reset-password" });
 
 	return (
-		<div className="max-w-lg mx-auto space-y-4">
-			<h1 className="text-2xl font-bold">{APP_NAME}</h1>
+		<div className="mx-auto max-w-lg space-y-4">
+			<h1 className="font-bold text-2xl">{APP_NAME}</h1>
 			<div className="space-y-2">
-				<h2 className="text-lg font-bold">Update Password</h2>
+				<h2 className="font-bold text-lg">Update Password</h2>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 						<FormField
@@ -147,7 +147,7 @@ function UpdatePassword() {
 				<div className="flex justify-center pt-2">
 					<Link
 						to="/login"
-						className="text-gray-500 underline text-xs hover:text-gray-400"
+						className="text-gray-500 text-xs underline hover:text-gray-400"
 					>
 						Know your password? Sign in
 					</Link>

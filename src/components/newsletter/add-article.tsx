@@ -90,8 +90,7 @@ export function AddArticle(props: { newsletterId: string }) {
 			console.error(error);
 			toast.error("Failed to add article. Please try again.");
 		},
-		onSuccess: (data) => {
-			console.log(data);
+		onSuccess: () => {
 			toast.dismiss();
 			toast.success("Article added successfully");
 			queryClient.invalidateQueries({

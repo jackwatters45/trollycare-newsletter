@@ -3,9 +3,9 @@ import { Link } from "@tanstack/react-router";
 
 const NotFoundPage = () => {
 	return (
-		<div className="flex flex-col items-center justify-center py-16 bg-background text-foreground">
-			<h1 className="text-4xl font-bold mb-4">404</h1>
-			<p className="text-xl mb-8">Oops! Page not found</p>
+		<div className="flex flex-col items-center justify-center bg-background py-16 text-foreground">
+			<h1 className="mb-4 font-bold text-4xl">404</h1>
+			<p className="mb-8 text-xl">Oops! Page not found</p>
 			<div className="mb-8">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +26,7 @@ const NotFoundPage = () => {
 					<line x1="15" y1="9" x2="15.01" y2="9" />
 				</svg>
 			</div>
-			<p className="text-center mb-8 max-w-md">
+			<p className="mb-8 max-w-md text-center">
 				The page you are looking for might have been removed, had its name
 				changed, or is temporarily unavailable.
 			</p>

@@ -17,9 +17,9 @@ function RootComponent() {
 
 	return (
 		<>
-			<div className="w-full h-full">
+			<div className="h-full w-full">
 				{!isAuthPage ? <Nav /> : null}
-				<div className="container pb-16 pt-24 max-w-screen-lg mx-auto">
+				<div className="container mx-auto max-w-screen-lg pt-24 pb-16">
 					<main className="flex-1 space-y-8">
 						<Outlet />
 					</main>

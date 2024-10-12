@@ -18,7 +18,7 @@ const Textarea: TextareaComponent = React.forwardRef<
 	return (
 		<RCTextarea
 			className={cn(
-				"flex w-full rounded-md border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed italic disabled:not-italic",
+				"flex w-full rounded-md border-input bg-background px-3 py-2 text-sm italic ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:not-italic",
 				className,
 			)}
 			ref={ref}

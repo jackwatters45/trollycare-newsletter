@@ -93,17 +93,17 @@ function SecretTest() {
 	if (!data) return <ErrorComponent error="No data available" />;
 
 	return (
-		<div className="max-w-3xl mx-auto px-4">
-			<h1 className="text-3xl font-bold text-center mb-6">
+		<div className="mx-auto max-w-3xl px-4">
+			<h1 className="mb-6 text-center font-bold text-3xl">
 				Newsletter Process Demonstration
 			</h1>
-			<div className="bg-accent border-l-4 border-muted-foreground text-muted-foreground p-4 mb-6 rounded shadow-md">
+			<div className="mb-6 rounded border-muted-foreground border-l-4 bg-accent p-4 text-muted-foreground shadow-md">
 				<p className="font-bold">How Our Automated Newsletter System Works</p>
 				<p className="mt-2">
 					This page demonstrates what happens when our scheduled task runs to create
 					a new newsletter. Here's the process:
 				</p>
-				<ol className="list-decimal list-inside mt-2">
+				<ol className="mt-2 list-inside list-decimal">
 					<li>
 						Our system automatically gathers the latest content for the newsletter.
 					</li>
@@ -123,7 +123,7 @@ function SecretTest() {
 					process.
 				</p>
 			</div>
-			<div className="flex justify-center space-x-4 mb-5">
+			<div className="mb-5 flex justify-center space-x-4">
 				<Button onClick={handleFullGenerate} disabled={fullMutation.isPending}>
 					Full Newsletter Generation
 				</Button>
@@ -136,7 +136,7 @@ function SecretTest() {
 				</Button>
 			</div>
 			{fullMutation.isPending && (
-				<div className="text-center text-sm text-gray-600 mt-3">
+				<div className="mt-3 text-center text-gray-600 text-sm">
 					Simulating process... This usually takes a few minutes in the real system.
 				</div>
 			)}
@@ -158,7 +158,7 @@ function SecretTest() {
 			)}
 
 			{emailMutation.isPending && (
-				<div className="text-center text-sm text-gray-600 mt-3">
+				<div className="mt-3 text-center text-gray-600 text-sm">
 					Simulating email sending...
 				</div>
 			)}

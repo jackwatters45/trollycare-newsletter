@@ -189,7 +189,6 @@ export default function useNewsletter(
 		if (movedItem) {
 			movedItem.focus();
 		}
-		// TODO: Implement API call to update the order on the server
 	};
 
 	const handleDragOver = (event: DragOverEvent) => {

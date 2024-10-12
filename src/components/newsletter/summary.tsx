@@ -34,10 +34,12 @@ export default function Summary(props: {
 					}),
 				},
 			);
+			
 			if (!res.ok) {
 				const errorData = await res.json().catch(() => null);
 				throw APIError.fromResponse(res, errorData);
 			}
+
 			return await res.json();
 		},
 		onError: (error) => {
@@ -58,7 +60,7 @@ export default function Summary(props: {
 					<h2>Summary</h2>
 					<div className="flex items-center space-x-4">
 						{isEditing && (
-							<span className="text-sm text-muted-foreground">(Editing)</span>
+							<span className="text-muted-foreground text-sm">(Editing)</span>
 						)}
 						{isEditing ? (
 							<Button size={"sm"} variant={"secondary"} onClick={handleSaveClick}>

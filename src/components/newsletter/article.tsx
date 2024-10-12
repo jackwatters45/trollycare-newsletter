@@ -87,18 +87,18 @@ export default function ArticleComponent(props: {
 	if (!props.article) return null;
 
 	return (
-		<Card className="space-y-2 border rounded-md border-border py-4 flex flex-1">
+		<Card className="flex flex-1 space-y-2 rounded-md border border-border py-4">
 			<div
-				className="pl-3 pt-4 -mr-3 z-10 h-fit"
+				className="-mr-3 z-10 h-fit pt-4 pl-3"
 				{...props.attributes}
 				{...props.listeners}
 			>
-				<div className="cursor-grab active:cursor-grabbing hover:bg-accent rounded-md p-1 text-muted-foreground">
+				<div className="cursor-grab rounded-md p-1 text-muted-foreground hover:bg-accent active:cursor-grabbing">
 					<DragHandleIcon />
 				</div>
 			</div>
 			<div className="flex-1">
-				<CardTitle className="font-bold flex-1 w-full text-lg px-6">
+				<CardTitle className="w-full flex-1 px-6 font-bold text-lg">
 					<a
 						href={props.article.link}
 						target="_blank"
@@ -132,7 +132,7 @@ export default function ArticleComponent(props: {
 							</Button>
 						)}
 						{isEditing && (
-							<span className="text-sm text-muted-foreground">(Editing)</span>
+							<span className="text-muted-foreground text-sm">(Editing)</span>
 						)}
 					</div>
 					<RemoveArticleAlert

@@ -68,7 +68,7 @@ function History() {
 function HistoryTable(props: { newsletters: Newsletter[] }) {
 	return (
 		<div className="container mx-auto">
-			<h2 className="text-2xl font-bold">History</h2>
+			<h2 className="font-bold text-2xl">History</h2>
 			<DataTable columns={columns} data={props.newsletters} />
 		</div>
 	);
@@ -188,7 +188,7 @@ function DeleteNewsletter(props: { newsletterId: string }) {
 
 	return (
 		<AlertDialog>
-			<AlertDialogTrigger className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent w-full">
+			<AlertDialogTrigger className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent">
 				Delete Newsletter
 			</AlertDialogTrigger>
 			<AlertDialogContent>
