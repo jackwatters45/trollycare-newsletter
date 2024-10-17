@@ -116,10 +116,15 @@ function DraftNewsletter(
 				<CardContent>
 					<ol className="list-inside list-decimal space-y-2">
 						<li>Review Summary. Click the edit summary button to make changes.</li>
-						<li>Click the delete icon to remove the article from the newsletter.</li>
+						<li>
+							Review the articles in the newsletter. You can delete articles and edit
+							their titles and descriptions. When editing an article title/description
+							you can leave the field blank to let AI generate the value.
+						</li>
 						<li>
 							Confirm the contents of the newsletter by clicking the confirmation
-							button at the bottom of the page.
+							button at the bottom of the page. Upload an updated CSV file to sync your
+							Epic data with the newsletter.
 						</li>
 					</ol>
 				</CardContent>
