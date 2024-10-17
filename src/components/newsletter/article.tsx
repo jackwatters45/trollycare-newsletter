@@ -1,7 +1,9 @@
 import { toast } from "sonner";
-import { useCallback, useRef, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { TextAreaRef } from "rc-textarea";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import type { Article } from "@/types";
 import { APIError } from "@/lib/error";
@@ -25,6 +27,19 @@ import { GripVertical } from "lucide-react";
 import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
+const titleSchema = z.object({
+	title: z.string().max(100, "Title must be less than 100 characters"),
+});
+
+const descriptionSchema = z.object({
+	description: z
+		.string()
+		.max(500, "Description must be less than 500 characters"),
+});
+
+type TitleFormData = z.infer<typeof titleSchema>;
+type DescriptionFormData = z.infer<typeof descriptionSchema>;
+
 export default function ArticleComponent(props: {
 	article: Article;
 	newsletterId: string;
@@ -32,29 +47,31 @@ export default function ArticleComponent(props: {
 	listeners?: SyntheticListenerMap;
 }) {
 	const authenticatedFetch = useAuthenticatedFetch();
+	const queryClient = useQueryClient();
 
-	const textareaRef = useRef<TextAreaRef>(null);
+	const [isEditingDescription, setIsEditingDescription] = useState(false);
+	const [isEditingTitle, setIsEditingTitle] = useState(false);
 
-	const [isEditing, setIsEditing] = useState(false);
+	const titleForm = useForm<TitleFormData>({
+		resolver: zodResolver(titleSchema),
+		defaultValues: {
+			title: props.article.title ?? "",
+		},
+	});
 
-	const [description, setDescription] = useState(props.article.description);
-	const handleEditClick = useCallback(() => {
-		setIsEditing(true);
-		setTimeout(() => {
-			if (textareaRef.current) {
-				textareaRef.current.focus();
-				// Move cursor to the end
-				const length = textareaRef.current.resizableTextArea.textArea.value.length;
-				textareaRef.current.resizableTextArea.textArea.setSelectionRange(
-					length,
-					length,
-				);
-			}
-		}, 0);
-	}, []);
+	const descriptionForm = useForm<DescriptionFormData>({
+		resolver: zodResolver(descriptionSchema),
+		defaultValues: {
+			description: props.article.description ?? "",
+		},
+	});
 
-	const { mutate } = useMutation<Article, APIError>({
-		mutationFn: async () => {
+	const descriptionMutation = useMutation<
+		Article,
+		APIError,
+		DescriptionFormData
+	>({
+		mutationFn: async (data) => {
 			const res = await authenticatedFetch(
 				`${import.meta.env.VITE_API_URL}/api/articles/${props.article.id}/description`,
 				{
@@ -62,9 +79,7 @@ export default function ArticleComponent(props: {
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({
-						description,
-					}),
+					body: JSON.stringify(data),
 				},
 			);
 			if (!res.ok) {
@@ -73,16 +88,55 @@ export default function ArticleComponent(props: {
 			}
 			return await res.json();
 		},
+		onSuccess: (updatedArticle) => {
+			toast.success("Description updated successfully");
+			setIsEditingDescription(false);
+			descriptionForm.reset({ description: updatedArticle.description });
+			queryClient.invalidateQueries({ queryKey: ["article", props.newsletterId] });
+		},
 		onError: (error) => {
 			console.error(error);
 			toast.error("Failed to update description. Please try again.");
 		},
 	});
 
-	const handleSaveClick = useCallback(() => {
-		mutate();
-		setIsEditing(false);
-	}, [mutate]);
+	const titleMutation = useMutation<Article, APIError, TitleFormData>({
+		mutationFn: async (data) => {
+			const res = await authenticatedFetch(
+				`${import.meta.env.VITE_API_URL}/api/articles/${props.article.id}/title`,
+				{
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
+				},
+			);
+			if (!res.ok) {
+				const errorData = await res.json().catch(() => null);
+				throw APIError.fromResponse(res, errorData);
+			}
+			return await res.json();
+		},
+		onSuccess: (updatedArticle) => {
+			toast.success("Title updated successfully");
+			setIsEditingTitle(false);
+			titleForm.reset({ title: updatedArticle.title });
+			queryClient.invalidateQueries({ queryKey: ["article", props.newsletterId] });
+		},
+		onError: (error) => {
+			console.error(error);
+			toast.error("Failed to update title. Please try again.");
+		},
+	});
+
+	const onSubmitDescription = (data: DescriptionFormData) => {
+		descriptionMutation.mutate(data);
+	};
+
+	const onSubmitTitle = (data: TitleFormData) => {
+		titleMutation.mutate(data);
+	};
 
 	if (!props.article) return null;
 
@@ -99,41 +153,88 @@ export default function ArticleComponent(props: {
 			</div>
 			<div className="flex-1">
 				<CardTitle className="w-full flex-1 px-6 font-bold text-lg">
-					<a
-						href={props.article.link}
-						target="_blank"
-						rel="noreferrer"
-						className="font-bold"
-					>
-						{props.article.title}
-					</a>
+					{isEditingTitle ? (
+						<form onSubmit={titleForm.handleSubmit(onSubmitTitle)}>
+							<Controller
+								name="title"
+								control={titleForm.control}
+								render={({ field }) => (
+									<Textarea
+										{...field}
+										className="h-fit w-full border-none p-0 font-bold text-lg italic focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+									/>
+								)}
+							/>
+						</form>
+					) : (
+						<a
+							href={props.article.link}
+							target="_blank"
+							rel="noreferrer"
+							className="font-bold"
+						>
+							{titleForm.getValues().title}
+						</a>
+					)}
 				</CardTitle>
 				<div>
 					<div className="w-full px-3">
-						<Textarea
-							id={props.article.title}
-							value={description}
-							onChange={(e) => setDescription(e.target.value)}
-							disabled={!isEditing}
-							className="disabled:cursor-auto"
-							ref={textareaRef}
-						/>
+						<form onSubmit={descriptionForm.handleSubmit(onSubmitDescription)}>
+							<Controller
+								name="description"
+								control={descriptionForm.control}
+								render={({ field }) => (
+									<Textarea
+										{...field}
+										disabled={!isEditingDescription}
+										className="disabled:cursor-auto"
+									/>
+								)}
+							/>
+						</form>
 					</div>
 				</div>
 				<div className="flex items-center justify-between space-x-4 px-6 pt-2">
 					<div className="space-x-4">
-						{isEditing ? (
-							<Button size={"sm"} variant={"secondary"} onClick={handleSaveClick}>
-								Save
+						{isEditingTitle ? (
+							<Button
+								size={"sm"}
+								variant={"secondary"}
+								onClick={titleForm.handleSubmit(onSubmitTitle)}
+								disabled={titleMutation.isPending}
+							>
+								{titleMutation.isPending ? "Saving..." : "Save Title"}
 							</Button>
 						) : (
-							<Button size={"sm"} onClick={handleEditClick}>
-								Edit
+							<Button size={"sm"} onClick={() => setIsEditingTitle(true)}>
+								Edit Title
 							</Button>
 						)}
-						{isEditing && (
-							<span className="text-muted-foreground text-sm">(Editing)</span>
+						{isEditingDescription ? (
+							<Button
+								size={"sm"}
+								variant={"secondary"}
+								onClick={descriptionForm.handleSubmit(onSubmitDescription)}
+								disabled={descriptionMutation.isPending}
+							>
+								{descriptionMutation.isPending ? "Saving..." : "Save Description"}
+							</Button>
+						) : (
+							<Button size={"sm"} onClick={() => setIsEditingDescription(true)}>
+								Edit Description
+							</Button>
 						)}
+						{isEditingTitle && isEditingDescription ? (
+							<span className="text-muted-foreground text-sm">(Editing)</span>
+						) : null}
+						{isEditingTitle && !isEditingDescription ? (
+							<span className="text-muted-foreground text-sm">(Editing Title)</span>
+						) : null}
+						{isEditingDescription && !isEditingTitle ? (
+							<span className="text-muted-foreground text-sm">
+								(Editing Description)
+							</span>
+						) : null}
 					</div>
 					<RemoveArticleAlert
 						article={props.article}
@@ -147,10 +248,9 @@ export default function ArticleComponent(props: {
 
 function RemoveArticleAlert(props: { article: Article; newsletterId: string }) {
 	const queryClient = useQueryClient();
-
 	const authenticatedFetch = useAuthenticatedFetch();
 
-	const { mutate } = useMutation<Article, APIError>({
+	const mutation = useMutation<Article, APIError>({
 		mutationFn: async () => {
 			const res = await authenticatedFetch(
 				`${import.meta.env.VITE_API_URL}/api/articles/${props.article.id}`,
@@ -176,7 +276,7 @@ function RemoveArticleAlert(props: { article: Article; newsletterId: string }) {
 	});
 
 	const onConfirm = () => {
-		mutate();
+		mutation.mutate();
 	};
 
 	return (
@@ -197,7 +297,9 @@ function RemoveArticleAlert(props: { article: Article; newsletterId: string }) {
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction onClick={onConfirm}>Confirm</AlertDialogAction>
+					<AlertDialogAction onClick={onConfirm} disabled={mutation.isPending}>
+						{mutation.isPending ? "Removing..." : "Confirm"}
+					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
